@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>一步步完善视觉里程计1——项目框架搭建 | Blackant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前面我们基于OpenCV3.0实现了简单的VO，接下来我们对整个过程进行进一步优化。一步步实现可以使用的视觉里程计。&amp;lt;/br&amp;gt;整个程序主要参考：https://github.com/uzh-rpg/rpg_svo   &amp;lt;/br&amp;gt;论文主要参考:http://rpg.ifi.uzh.ch/docs/ICRA14_Forster.pdf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一步步完善视觉里程计1——项目框架搭建">
+<meta property="og:url" content="http://yoursite.com/2017/09/16/一步步完善视觉里程计1——项目框架搭建/index.html">
+<meta property="og:site_name" content="Blackant">
+<meta property="og:description" content="前面我们基于OpenCV3.0实现了简单的VO，接下来我们对整个过程进行进一步优化。一步步实现可以使用的视觉里程计。&amp;lt;/br&amp;gt;整个程序主要参考：https://github.com/uzh-rpg/rpg_svo   &amp;lt;/br&amp;gt;论文主要参考:http://rpg.ifi.uzh.ch/docs/ICRA14_Forster.pdf">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/source_file.png">
+<meta property="og:updated_time" content="2019-02-21T08:49:15.529Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一步步完善视觉里程计1——项目框架搭建">
+<meta name="twitter:description" content="前面我们基于OpenCV3.0实现了简单的VO，接下来我们对整个过程进行进一步优化。一步步实现可以使用的视觉里程计。&amp;lt;/br&amp;gt;整个程序主要参考：https://github.com/uzh-rpg/rpg_svo   &amp;lt;/br&amp;gt;论文主要参考:http://rpg.ifi.uzh.ch/docs/ICRA14_Forster.pdf">
+<meta name="twitter:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/source_file.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Blackant" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Blackant</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-一步步完善视觉里程计1——项目框架搭建" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/09/16/一步步完善视觉里程计1——项目框架搭建/" class="article-date">
+  <time datetime="2017-09-16T13:02:49.000Z" itemprop="datePublished">2017-09-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      一步步完善视觉里程计1——项目框架搭建
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>前面我们基于OpenCV3.0实现了简单的VO，接下来我们对整个过程进行进一步优化。一步步实现可以使用的视觉里程计。&lt;/br&gt;<br>整个程序主要参考：<a href="https://github.com/uzh-rpg/rpg_svo" target="_blank" rel="noopener">https://github.com/uzh-rpg/rpg_svo</a>   &lt;/br&gt;<br>论文主要参考:<a href="http://rpg.ifi.uzh.ch/docs/ICRA14_Forster.pdf" target="_blank" rel="noopener">http://rpg.ifi.uzh.ch/docs/ICRA14_Forster.pdf</a> </strong><br><a id="more"></a></p>
+<h2 id="第三方库准备"><a href="#第三方库准备" class="headerlink" title="第三方库准备"></a>第三方库准备</h2><p>不管是科研还是工程中，我们要充分利用好以后的资源，第三方库就是很好的资源，这样很多功能就避免自己去实现，从而带来不必要的bug。&lt;/br&gt;<br>不过对于第三方库，尽量使用成熟的第三方库，要挑选已有相关文档，或者单元测试较好，避免第三方库的使用带来bug。&lt;/br&gt;<br>本项目中主要使用到的第三方库有：&lt;/br&gt;<br><a href="http://opencv.org/" target="_blank" rel="noopener">OpenCV</a>计算机视觉库，提供了相关视觉方法&lt;/br&gt;<br><a href="https://github.com/RainerKuemmerle/g2o" target="_blank" rel="noopener">g2o</a>图优化，主要用于BA&lt;/br&gt;<br><a href="http://eigen.tuxfamily.org/index.php?title=Main_Page" target="_blank" rel="noopener">Eigen</a>提供矩阵相关运算&lt;/br&gt;<br><a href="http://www.boost.org/" target="_blank" rel="noopener">Boost</a>提供c++标准库的相关扩展&lt;/br&gt;<br>对于上述库，请大家自行安装，对于OpenCV请大家安装2.4.X，本人安装2.4.9，没有更新，先不必更新到3.0，因为3.0与之前版本差别较大。&lt;/br&gt;<br><a href="https://github.com/strasdat/Sophus" target="_blank" rel="noopener">Sophus</a>c++实现的李群库,为了更好的理解，目前使用非模板双精度版，记得&gt;&gt;git checkout a621ff   &lt;/br&gt;<br><a href="https://github.com/uzh-rpg/fast" target="_blank" rel="noopener">fast</a>特征检测，这个fast特征检测基于sse指令实现，速度快。</p>
+<h2 id="项目搭建"><a href="#项目搭建" class="headerlink" title="项目搭建"></a>项目搭建</h2><p><img src="http://7xl6tk.com1.z0.glb.clouddn.com/source_file.png" alt></p>
+<p>注：我目前开发环境为Windows8.1，采用CMake对项目进行构建，测试环境也为Windows8.1，其它平台目前不做考虑，后期移植Android时再进行测试。&lt;/br&gt;<br>对于整个source下面的文件及文件夹做一个简单解释：</p>
+<ul>
+<li>3drparty 存放第三方库</li>
+<li>apps 存放简单可应用程序</li>
+<li>cmake 存放相关cmake文件</li>
+<li>data 存放测试相关数据文件</li>
+<li>doc 存放文档生成相关文件</li>
+<li>libs 存放视觉里程计的封装类库</li>
+<li>parse-files 存放相关配置文件的解析模板</li>
+<li>samples 存放简单测试项目</li>
+<li>tests 存放单元测试用例</li>
+<li>CMakeLists.txt 主目录下的CMake配置文件</li>
+<li>README.md 项目相关说明</li>
+<li>version_prefix.txt 存储项目的版本号</li>
+</ul>
+<p>目前我们就先简单写一些CMakeLists.txt内容，主要是完成一个基础的框架，添加一些该添加的东西，保证整个CMake项目可以编译。&lt;/br&gt;<br>首先是主CMakeLists.txt文件，根目录的CMakeLists.txt文件主要作用设定全局目录路径，设置第三方库，设置编译选项，设置Include和link路径，处理子路径。总的来说CMakeLists.txt文件也就是一个标识性语言，具体主目录CMakeLists.txt文件如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">CMAKE_MINIMUM_REQUIRED (VERSION 2.8)#设定最小版CMake版本号</span><br><span class="line"></span><br><span class="line">PROJECT (OpenMVO)#设定工程名称</span><br><span class="line"></span><br><span class="line">LIST(APPEND CMAKE_MODULE_PATH &quot;$&#123;CMAKE_SOURCE_DIR&#125;/cmake&quot;) # 添加本地CMake脚本目录</span><br><span class="line"></span><br><span class="line">INCLUDE(cmake/script_version_number.cmake REQUIRED)#添加项目版本号</span><br><span class="line"></span><br><span class="line">#设置路径</span><br><span class="line">SET(OPENMVO_SOURCE_DIR  $&#123;CMAKE_CURRENT_SOURCE_DIR&#125;)</span><br><span class="line">SET(OPENMVO_INCLUDE_DIR $&#123;CMAKE_CURRENT_SOURCE_DIR&#125;)</span><br><span class="line">SET(OPENMVO_BINARY_DIR  $&#123;PROJECT_BINARY_DIR&#125;)</span><br><span class="line"></span><br><span class="line">#添加有用的宏</span><br><span class="line">INCLUDE(cmake/UtilsMacros.cmake REQUIRED)# 添加一些有工具宏</span><br><span class="line"></span><br><span class="line">set(CMAKE_DEBUG_POSTFIX  &quot;d&quot;)#设置Debug下lib的名称后添加d，如openmvo_XXX100d.lib</span><br><span class="line"></span><br><span class="line">#添加libs</span><br><span class="line">FIND_PACKAGE(OpenCV REQUIRED) #通过CMake系统添加OpenCV</span><br><span class="line">FIND_PACKAGE(g2o REQUIRED) #通过CMake系统添加g2o</span><br><span class="line">FIND_PACKAGE(Boost REQUIRED)</span><br><span class="line"></span><br><span class="line">include(cmake/script_eigen.cmake REQUIRED)  #添加Eigen</span><br><span class="line">#include(cmake/script_sophus.cmake REQUIRED) #添加Sophus</span><br><span class="line">include(cmake/script_fast.cmake REQUIRED)   #添加fast lib</span><br><span class="line"></span><br><span class="line">#构建静态库还是动态库，目前先设置为静态库，后期更改为默认动态库</span><br><span class="line">SET(BUILD_SHARED_LIBS OFF CACHE BOOL &quot;Build shared libraries (.dll/.so) instead of static ones (.lib/.a)&quot;)</span><br><span class="line">IF(BUILD_SHARED_LIBS)</span><br><span class="line">SET(CMAKE_OPENMVO_BUILD_SHARED_LIB &quot;#define OPENMVO_BUILT_AS_DLL&quot;)</span><br><span class="line">SET(CMAKE_OPENMVO_BUILD_SHARED_LIB_ONOFF 1)</span><br><span class="line">ELSE(BUILD_SHARED_LIBS)</span><br><span class="line">SET(CMAKE_OPENMVO_BUILD_SHARED_LIB &quot;/* #define OPENMVO_BUILT_AS_DLL */&quot;)</span><br><span class="line">SET(CMAKE_OPENMVO_BUILD_SHARED_LIB_ONOFF 0)</span><br><span class="line">ENDIF(BUILD_SHARED_LIBS)</span><br><span class="line"></span><br><span class="line">#设置include和link路径</span><br><span class="line">INCLUDE_DIRECTORIES(&quot;.&quot;)#设置包含当前目录</span><br><span class="line"></span><br><span class="line">LINK_DIRECTORIES(&quot;$&#123;CMAKE_BINARY_DIR&#125;/lib&quot;)</span><br><span class="line"></span><br><span class="line">#设置路径，保存lib和bin到同一目录</span><br><span class="line">SET( LIBRARY_OUTPUT_PATH $&#123;OPENMVO_BINARY_DIR&#125;/lib CACHE PATH &quot;Output directory for libraries&quot; )</span><br><span class="line">SET( EXECUTABLE_OUTPUT_PATH $&#123;OPENMVO_BINARY_DIR&#125;/bin CACHE PATH &quot;Output directory for applications&quot; )</span><br><span class="line"></span><br><span class="line"># ----------------------------------------------------------------------------</span><br><span class="line">#      					处理子目录</span><br><span class="line"># ----------------------------------------------------------------------------</span><br><span class="line">ADD_SUBDIRECTORY(3rdparty)   # 第三方库的路径</span><br><span class="line">ADD_SUBDIRECTORY(libs)        # 本地C++ lib的路径</span><br><span class="line"></span><br><span class="line">SET( BUILD_APPLICATIONS ON CACHE BOOL &quot;If you only want the OPENMVO libraries, disable this.&quot;)</span><br><span class="line">IF(BUILD_APPLICATIONS)</span><br><span class="line">ADD_SUBDIRECTORY(apps)    # 添加小应用程序目录</span><br><span class="line">ENDIF(BUILD_APPLICATIONS)</span><br><span class="line"></span><br><span class="line">ADD_SUBDIRECTORY(doc) #添加文档目录</span><br><span class="line"></span><br><span class="line">#   添加单元测试</span><br><span class="line"># ----------------------------------------------------------------------------</span><br><span class="line">SET( BUILD_TESTING ON CACHE BOOL &quot;Build OPENMVO tests&quot;)</span><br><span class="line">IF( BUILD_TESTING)</span><br><span class="line">ADD_SUBDIRECTORY(tests)  # 添加单元测试</span><br><span class="line">ENDIF( BUILD_TESTING)</span><br></pre></td></tr></table></figure>
+<p>对于上述内容已经添加好注释，目前只适配了Windows下VS2013平台，目前简单搭建了整个项目的框架，源码地址：<a href="https://github.com/yueying/OpenMVO" target="_blank" rel="noopener">https://github.com/yueying/OpenMVO</a></p>
+<pre><code>注意：目前整个项目源码提交到这个github下，代码会一步步迭代上去，所以可依据提交时间及注释参考原先代码
+</code></pre><p>今天就到这，下一步开始根据算法分析进行简单的算法设计。</p>
+<p>转载自冯兵的博客，<a href="http://fengbing.net/2015/08/02/%E4%B8%80%E6%AD%A5%E6%AD%A5%E5%AE%9E%E7%8E%B0%E5%8D%95%E7%9B%AE%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A11%E2%80%94%E2%80%94%E9%A1%B9%E7%9B%AE%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BA/" target="_blank" rel="noopener">原文链接</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/09/16/一步步完善视觉里程计1——项目框架搭建/" data-id="cjtbn1uzp000o93xys1po7r79" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/09/17/一步步完善视觉里程计2——FAST特征检测/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          一步步完善视觉里程计2——FAST特征检测
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/09/16/视觉里程计总介绍/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">视觉里程计总介绍</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/algorithm/">algorithm</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/robot/">robot</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/robot/Java/">Java</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/robot/Java/Android/">Android</a></li></ul></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROS/">ROS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SAE/">SAE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bigdata/">bigdata</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directions/">directions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/donation/">donation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goal/">goal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hello/">hello</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/helloworld/">helloworld</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/robot/">robot</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ROS/" style="font-size: 10px;">ROS</a> <a href="/tags/SAE/" style="font-size: 10px;">SAE</a> <a href="/tags/bigdata/" style="font-size: 10px;">bigdata</a> <a href="/tags/directions/" style="font-size: 10px;">directions</a> <a href="/tags/donation/" style="font-size: 10px;">donation</a> <a href="/tags/goal/" style="font-size: 20px;">goal</a> <a href="/tags/hello/" style="font-size: 10px;">hello</a> <a href="/tags/helloworld/" style="font-size: 10px;">helloworld</a> <a href="/tags/robot/" style="font-size: 10px;">robot</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/03/16/Nature machine intelligence/">Nature machine intelligence</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/16/Science robotics/">Science robotics</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/12/警犬项目经验总结/">警犬项目经验总结</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/12/[转]ROS机器人编程：原理与应用/">『转』ROS机器人编程：原理与应用</a>
+          </li>
+        
+          <li>
+            <a href="/2018/05/07/SVO详解/">SVO详解</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 Hhu_GFBlab<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>

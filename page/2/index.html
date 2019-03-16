@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Blackant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Blackant">
+<meta property="og:url" content="http://yoursite.com/page/2/index.html">
+<meta property="og:site_name" content="Blackant">
+<meta property="og:locale" content="default">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Blackant">
+  
+    <link rel="alternate" href="/atom.xml" title="Blackant" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Blackant</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-一步步完善视觉里程计4——运动估计image-align" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/09/18/一步步完善视觉里程计4——运动估计image-align/" class="article-date">
+  <time datetime="2017-09-18T12:45:47.000Z" itemprop="datePublished">2017-09-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/09/18/一步步完善视觉里程计4——运动估计image-align/">一步步完善视觉里程计4——运动估计image align</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>上一步中已经确定了初始位置，下面就是对连续帧的处理，也就是开始进行运动估计。&lt;/br&gt;<br>前面已经说了，对后续姿态的估计不是采用特征检测和鲁棒性的特征匹配（因此操作较耗时），而采用最小化光度误差。</strong>
+        
+          </p><p class="article-more-link">
+            <a href="/2017/09/18/一步步完善视觉里程计4——运动估计image-align/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/09/18/一步步完善视觉里程计4——运动估计image-align/" data-id="cjtbn1uzw000v93xyvku2atwz" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-一步步完善视觉里程计3——初始位置确定" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/09/18/一步步完善视觉里程计3——初始位置确定/" class="article-date">
+  <time datetime="2017-09-18T12:09:26.000Z" itemprop="datePublished">2017-09-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/09/18/一步步完善视觉里程计3——初始位置确定/">一步步完善视觉里程计3——初始位置确定</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>前面一篇博客，我们已经进行了特征提取，前面我们也说了，我们接下来不是通过特征匹配的方式来寻找对应特征点，而是采用跟踪的方式。&lt;/br&gt;<br>在前面视觉里程计总述中讲诉了误差的累计，因此初始位置的确定显得尤为重要，要确保初始位置的尽可能的准确。这一篇博客主要讲述了如何更精确的确定初始位置。</strong>
+        
+          </p><p class="article-more-link">
+            <a href="/2017/09/18/一步步完善视觉里程计3——初始位置确定/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/09/18/一步步完善视觉里程计3——初始位置确定/" data-id="cjtbn1uzv000s93xy2smcndkr" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-一步步完善视觉里程计2——FAST特征检测" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/09/17/一步步完善视觉里程计2——FAST特征检测/" class="article-date">
+  <time datetime="2017-09-17T15:45:17.000Z" itemprop="datePublished">2017-09-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/09/17/一步步完善视觉里程计2——FAST特征检测/">一步步完善视觉里程计2——FAST特征检测</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>前一篇博客中已经将项目简单搭建起来，目前肯定不完善也可能会出现错误，这些在接下来的时间里会一步步的完善。</strong>
+        
+          </p><p class="article-more-link">
+            <a href="/2017/09/17/一步步完善视觉里程计2——FAST特征检测/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/09/17/一步步完善视觉里程计2——FAST特征检测/" data-id="cjtbn1uzs000q93xyuk2vgm2x" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-一步步完善视觉里程计1——项目框架搭建" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/09/16/一步步完善视觉里程计1——项目框架搭建/" class="article-date">
+  <time datetime="2017-09-16T13:02:49.000Z" itemprop="datePublished">2017-09-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/09/16/一步步完善视觉里程计1——项目框架搭建/">一步步完善视觉里程计1——项目框架搭建</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>前面我们基于OpenCV3.0实现了简单的VO，接下来我们对整个过程进行进一步优化。一步步实现可以使用的视觉里程计。&lt;/br&gt;<br>整个程序主要参考：<a href="https://github.com/uzh-rpg/rpg_svo" target="_blank" rel="noopener">https://github.com/uzh-rpg/rpg_svo</a>   &lt;/br&gt;<br>论文主要参考:<a href="http://rpg.ifi.uzh.ch/docs/ICRA14_Forster.pdf" target="_blank" rel="noopener">http://rpg.ifi.uzh.ch/docs/ICRA14_Forster.pdf</a> </strong><br>
+        
+          </p><p class="article-more-link">
+            <a href="/2017/09/16/一步步完善视觉里程计1——项目框架搭建/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/09/16/一步步完善视觉里程计1——项目框架搭建/" data-id="cjtbn1uzp000o93xys1po7r79" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-视觉里程计总介绍" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/09/16/视觉里程计总介绍/" class="article-date">
+  <time datetime="2017-09-16T11:41:55.000Z" itemprop="datePublished">2017-09-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/09/16/视觉里程计总介绍/">视觉里程计总介绍</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>接下来的文章就是对上述简单视觉里程计一步步优化，提高算法的精度，效率以及鲁棒性。&lt;/br&gt;<br>在此之前，我们先对视觉里程计整个发展做一个回顾。具体可以参考大牛Davide Scaramuzza的两篇文章<a href="http://rpg.ifi.uzh.ch/" target="_blank" rel="noopener">Visual Odometry: Part I</a>[1],Visual Odometry: Part II[2].&lt;/br&gt;<br>英语也不是很好，就不对这两篇文章进行翻译了，主要对这两篇文章进行一下回顾。</strong>
+        
+          </p><p class="article-more-link">
+            <a href="/2017/09/16/视觉里程计总介绍/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/09/16/视觉里程计总介绍/" data-id="cjtbn1v01001593xyd8xrflib" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-SVO-SEMI-DIRECT-MONOCULAR-VISUAL-ODOMETRY" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/09/15/SVO-SEMI-DIRECT-MONOCULAR-VISUAL-ODOMETRY/" class="article-date">
+  <time datetime="2017-09-15T15:36:21.000Z" itemprop="datePublished">2017-09-15</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/09/15/SVO-SEMI-DIRECT-MONOCULAR-VISUAL-ODOMETRY/">SVO ( SEMI-DIRECT MONOCULAR VISUAL ODOMETRY)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="SVO-简介"><a href="#SVO-简介" class="headerlink" title="SVO 简介"></a>SVO 简介</h2><p><strong>SVO 全称 Semi-direct monocular Visual Odometry（半直接视觉里程计），是苏黎世大学机器人感知组的克里斯蒂安.弗斯特（<a href="http://www.cforster.ch/" target="_blank" rel="noopener">Christian Forster</a>，主页：Christian Forster）等人，于2014年ICRA会议上发表的工作，随后在github开源：<a href="https://github.com/uzh-rpg/rpg_svo" target="_blank" rel="noopener">uzh-rpg/rpg_svo</a>。2016年扩展了多相机和IMU之后，写成期刊论文，称为SVO 2.0，预定将在IEEE Trans. on Robotics上发表（视频见[2]）。SVO 2.0目前未开源（个人认为以后也不会开)</strong>
+        
+          </p><p class="article-more-link">
+            <a href="/2017/09/15/SVO-SEMI-DIRECT-MONOCULAR-VISUAL-ODOMETRY/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/09/15/SVO-SEMI-DIRECT-MONOCULAR-VISUAL-ODOMETRY/" data-id="cjtbn1uyk000993xyuy7q7vye" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-DDNS" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/08/29/DDNS/" class="article-date">
+  <time datetime="2017-08-29T11:54:42.000Z" itemprop="datePublished">2017-08-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/08/29/DDNS/">DDNS</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><p><strong>项目所用的服务器是基础电信线路，没有申请固定ip，需要使用ddns实时更新服务器ipv4地址。</strong>
+        
+          </p><p class="article-more-link">
+            <a href="/2017/08/29/DDNS/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/08/29/DDNS/" data-id="cjtbn1uxv000293xygzfdcl28" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Principle-of-real-time-video-transmission" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/01/10/Principle-of-real-time-video-transmission/" class="article-date">
+  <time datetime="2016-01-10T11:08:39.000Z" itemprop="datePublished">2016-01-10</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/01/10/Principle-of-real-time-video-transmission/">Principle of real time video transmission</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Our-team-goal"><a href="#Our-team-goal" class="headerlink" title="Our team goal"></a>Our team goal</h2><p><strong>Our team is coming from China, named of X-Space. We are young, and we are naive, building an open source platform for the robot to provide solutions for the foundation of the robot, to help more people to better understand the industry, is our goal!!!!!</strong>
+        
+          </p><p class="article-more-link">
+            <a href="/2016/01/10/Principle-of-real-time-video-transmission/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/01/10/Principle-of-real-time-video-transmission/" data-id="cjtbn1uyg000893xyubj9tb03" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-robot-control-principle" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/01/10/robot-control-principle/" class="article-date">
+  <time datetime="2016-01-10T11:07:21.000Z" itemprop="datePublished">2016-01-10</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/algorithm/">algorithm</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/01/10/robot-control-principle/">robot control principle</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Our-team-goal"><a href="#Our-team-goal" class="headerlink" title="Our team goal"></a>Our team goal</h2><p><strong>Our team is coming from China, named of X-Space. We are young, and we are naive, building an open source platform for the robot to provide solutions for the foundation of the robot, to help more people to better understand the industry, is our goal!!!!!</strong>
+        
+          </p><p class="article-more-link">
+            <a href="/2016/01/10/robot-control-principle/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/01/10/robot-control-principle/" data-id="cjtbn1uze000h93xyzhm336um" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/directions/">directions</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/donation/">donation</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/goal/">goal</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-land-robot-already-open" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/01/10/land-robot-already-open/" class="article-date">
+  <time datetime="2016-01-10T10:59:43.000Z" itemprop="datePublished">2016-01-10</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/01/10/land-robot-already-open/">land robot already open</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Our-team-goal"><a href="#Our-team-goal" class="headerlink" title="Our team goal"></a>Our team goal</h2><p><strong>Our team is coming from China, named of X-Space. We are young, and we are naive, building an open source platform for the robot to provide solutions for the foundation of the robot, to help more people to better understand the industry, is our goal!!!!!</strong>
+        
+          </p><p class="article-more-link">
+            <a href="/2016/01/10/land-robot-already-open/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/01/10/land-robot-already-open/" data-id="cjtbn1uzd000g93xyif92vjwc" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/algorithm/">algorithm</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/robot/">robot</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/robot/Java/">Java</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/robot/Java/Android/">Android</a></li></ul></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROS/">ROS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SAE/">SAE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bigdata/">bigdata</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directions/">directions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/donation/">donation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goal/">goal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hello/">hello</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/helloworld/">helloworld</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/robot/">robot</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ROS/" style="font-size: 10px;">ROS</a> <a href="/tags/SAE/" style="font-size: 10px;">SAE</a> <a href="/tags/bigdata/" style="font-size: 10px;">bigdata</a> <a href="/tags/directions/" style="font-size: 10px;">directions</a> <a href="/tags/donation/" style="font-size: 10px;">donation</a> <a href="/tags/goal/" style="font-size: 20px;">goal</a> <a href="/tags/hello/" style="font-size: 10px;">hello</a> <a href="/tags/helloworld/" style="font-size: 10px;">helloworld</a> <a href="/tags/robot/" style="font-size: 10px;">robot</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/03/16/Nature machine intelligence/">Nature machine intelligence</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/16/Science robotics/">Science robotics</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/12/警犬项目经验总结/">警犬项目经验总结</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/12/[转]ROS机器人编程：原理与应用/">『转』ROS机器人编程：原理与应用</a>
+          </li>
+        
+          <li>
+            <a href="/2018/05/07/SVO详解/">SVO详解</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 Hhu_GFBlab<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>

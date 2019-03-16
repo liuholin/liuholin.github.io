@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>一步步完善视觉里程计4——运动估计image align | Blackant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="上一步中已经确定了初始位置，下面就是对连续帧的处理，也就是开始进行运动估计。&amp;lt;/br&amp;gt;前面已经说了，对后续姿态的估计不是采用特征检测和鲁棒性的特征匹配（因此操作较耗时），而采用最小化光度误差。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一步步完善视觉里程计4——运动估计image align">
+<meta property="og:url" content="http://yoursite.com/2017/09/18/一步步完善视觉里程计4——运动估计image-align/index.html">
+<meta property="og:site_name" content="Blackant">
+<meta property="og:description" content="上一步中已经确定了初始位置，下面就是对连续帧的处理，也就是开始进行运动估计。&amp;lt;/br&amp;gt;前面已经说了，对后续姿态的估计不是采用特征检测和鲁棒性的特征匹配（因此操作较耗时），而采用最小化光度误差。">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/img/formula.png">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/sparse_img_alignment.png">
+<meta property="og:image" content="http://yoursite.com/img/t.png">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/nlls1.png">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/nlls2.png">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/nlls3.png">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/nlls4.png">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/nlls5.png">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/nlls6.png">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/nlls7.png">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/image_aline.png">
+<meta property="og:updated_time" content="2019-02-21T08:49:15.529Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一步步完善视觉里程计4——运动估计image align">
+<meta name="twitter:description" content="上一步中已经确定了初始位置，下面就是对连续帧的处理，也就是开始进行运动估计。&amp;lt;/br&amp;gt;前面已经说了，对后续姿态的估计不是采用特征检测和鲁棒性的特征匹配（因此操作较耗时），而采用最小化光度误差。">
+<meta name="twitter:image" content="http://yoursite.com/img/formula.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Blackant" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Blackant</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-一步步完善视觉里程计4——运动估计image-align" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/09/18/一步步完善视觉里程计4——运动估计image-align/" class="article-date">
+  <time datetime="2017-09-18T12:45:47.000Z" itemprop="datePublished">2017-09-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      一步步完善视觉里程计4——运动估计image align
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>上一步中已经确定了初始位置，下面就是对连续帧的处理，也就是开始进行运动估计。&lt;/br&gt;<br>前面已经说了，对后续姿态的估计不是采用特征检测和鲁棒性的特征匹配（因此操作较耗时），而采用最小化光度误差。</strong><a id="more"></a></p>
+<h2 id="具体思路"><a href="#具体思路" class="headerlink" title="具体思路"></a>具体思路</h2><p><img src="/img/formula.png" alt></p>
+<p>具体示意图如下：</p>
+<p><img src="http://7xl6tk.com1.z0.glb.clouddn.com/sparse_img_alignment.png" alt><br><img src="/img/t.png" alt></p>
+<p>这边要注意的，在光流计算中，要考虑warp，目前考虑时间不对pitch进行操作。因此目前算法是建立在帧到帧的运动较小，以及计算的pitch较小，因此希望相机的帧率较高。&lt;/br&gt;<br>具体上述问题是一个非线性最小二乘，通过Levenberg Marquardt 和 Gauss Newton方法进行求解。</p>
+<h2 id="最小二乘求解过程"><a href="#最小二乘求解过程" class="headerlink" title="最小二乘求解过程"></a>最小二乘求解过程</h2><p>具体过程写成通用形式如下,参考：《孟繁雪，非线性最小二乘问题的混合算法》：</p>
+<p><img src="http://7xl6tk.com1.z0.glb.clouddn.com/nlls1.png" alt><br><img src="http://7xl6tk.com1.z0.glb.clouddn.com/nlls2.png" alt><br><img src="http://7xl6tk.com1.z0.glb.clouddn.com/nlls3.png" alt><br><img src="http://7xl6tk.com1.z0.glb.clouddn.com/nlls4.png" alt><br><img src="http://7xl6tk.com1.z0.glb.clouddn.com/nlls5.png" alt><br><img src="http://7xl6tk.com1.z0.glb.clouddn.com/nlls6.png" alt><br><img src="http://7xl6tk.com1.z0.glb.clouddn.com/nlls7.png" alt></p>
+<h2 id="具体代码"><a href="#具体代码" class="headerlink" title="具体代码"></a>具体代码</h2><p>首先对当前图像进行Warp处理以对应参考图像<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line">void SparseImgAlign::precomputeReferencePatches()</span><br><span class="line">&#123;</span><br><span class="line">const int border = patch_halfsize_ + 1;</span><br><span class="line">const cv::Mat&amp; ref_img = ref_frame_-&gt;img_pyr_.at(level_);//得到当前金字塔等级参考图像</span><br><span class="line">const int stride = ref_img.cols;</span><br><span class="line">const float scale = 1.0f / (1 &lt;&lt; level_);</span><br><span class="line">const Vector3d ref_pos = ref_frame_-&gt;pos();//当前帧世界坐标系中的坐标</span><br><span class="line">const double focal_length = ref_frame_-&gt;cam_-&gt;getFocalLength();</span><br><span class="line">size_t feature_counter = 0;</span><br><span class="line">std::vector&lt;bool&gt;::iterator visiblity_it = visible_fts_.begin();</span><br><span class="line">for (auto it = ref_frame_-&gt;fts_.begin(), ite = ref_frame_-&gt;fts_.end();</span><br><span class="line">it != ite; ++it, ++feature_counter, ++visiblity_it)</span><br><span class="line">&#123;</span><br><span class="line">// 确保面片在图像内</span><br><span class="line">const float u_ref = (*it)-&gt;px[0] * scale;</span><br><span class="line">const float v_ref = (*it)-&gt;px[1] * scale;</span><br><span class="line">const int u_ref_i = floorf(u_ref);</span><br><span class="line">const int v_ref_i = floorf(v_ref);</span><br><span class="line">if ((*it)-&gt;point == NULL || u_ref_i - border &lt; 0 || v_ref_i - border &lt; 0 || u_ref_i + border &gt;= ref_img.cols || v_ref_i + border &gt;= ref_img.rows)</span><br><span class="line">continue;</span><br><span class="line">*visiblity_it = true;</span><br><span class="line"></span><br><span class="line">// 这边不能直接使用3d点的坐标，会存在重投影的误差，而是通过单位点乘以深度的方式进行计算</span><br><span class="line">const double depth(((*it)-&gt;point-&gt;pos_ - ref_pos).norm());</span><br><span class="line">const Vector3d xyz_ref((*it)-&gt;f*depth);</span><br><span class="line"></span><br><span class="line">// 估计投影的雅克比矩阵</span><br><span class="line">Matrix&lt;double, 2, 6&gt; frame_jac;</span><br><span class="line">Frame::jacobian_xyz2uv(xyz_ref, frame_jac);</span><br><span class="line"></span><br><span class="line">// 对参考图像进行双边差值操作</span><br><span class="line">const float subpix_u_ref = u_ref - u_ref_i;</span><br><span class="line">const float subpix_v_ref = v_ref - v_ref_i;</span><br><span class="line">const float w_ref_tl = (1.0 - subpix_u_ref) * (1.0 - subpix_v_ref);</span><br><span class="line">const float w_ref_tr = subpix_u_ref * (1.0 - subpix_v_ref);</span><br><span class="line">const float w_ref_bl = (1.0 - subpix_u_ref) * subpix_v_ref;</span><br><span class="line">const float w_ref_br = subpix_u_ref * subpix_v_ref;</span><br><span class="line">size_t pixel_counter = 0;</span><br><span class="line">float* cache_ptr = reinterpret_cast&lt;float*&gt;(ref_patch_cache_.data) + patch_area_*feature_counter;</span><br><span class="line">// 对一个面片进行计算</span><br><span class="line">for (int y = 0; y &lt; patch_size_; ++y)</span><br><span class="line">&#123;</span><br><span class="line">uint8_t* ref_img_ptr = (uint8_t*)ref_img.data + (v_ref_i + y - patch_halfsize_)*stride + (u_ref_i - patch_halfsize_);</span><br><span class="line">for (int x = 0; x &lt; patch_size_; ++x, ++ref_img_ptr, ++cache_ptr, ++pixel_counter)</span><br><span class="line">&#123;</span><br><span class="line">// 通过插值计算每个特征面片灰度值，主要进行测试查看</span><br><span class="line">*cache_ptr = w_ref_tl*ref_img_ptr[0] + w_ref_tr*ref_img_ptr[1] + w_ref_bl*ref_img_ptr[stride] + w_ref_br*ref_img_ptr[stride + 1];</span><br><span class="line"></span><br><span class="line">// 采用逆向组合算法(inverse compositional): 通过采取梯度总是在相同位置这一性质</span><br><span class="line">// 得到warped的图像 </span><br><span class="line">float dx = 0.5f * ((w_ref_tl*ref_img_ptr[1] + w_ref_tr*ref_img_ptr[2] + w_ref_bl*ref_img_ptr[stride + 1] + w_ref_br*ref_img_ptr[stride + 2])</span><br><span class="line">- (w_ref_tl*ref_img_ptr[-1] + w_ref_tr*ref_img_ptr[0] + w_ref_bl*ref_img_ptr[stride - 1] + w_ref_br*ref_img_ptr[stride]));</span><br><span class="line">float dy = 0.5f * ((w_ref_tl*ref_img_ptr[stride] + w_ref_tr*ref_img_ptr[1 + stride] + w_ref_bl*ref_img_ptr[stride * 2] + w_ref_br*ref_img_ptr[stride * 2 + 1])</span><br><span class="line">- (w_ref_tl*ref_img_ptr[-stride] + w_ref_tr*ref_img_ptr[1 - stride] + w_ref_bl*ref_img_ptr[0] + w_ref_br*ref_img_ptr[1]));</span><br><span class="line"></span><br><span class="line">// cache the jacobian</span><br><span class="line">jacobian_cache_.col(feature_counter*patch_area_ + pixel_counter) =</span><br><span class="line">(dx*frame_jac.row(0) + dy*frame_jac.row(1))*(focal_length / (1 &lt;&lt; level_));</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">have_ref_patch_cache_ = true;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>接着就是计算残差：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line">double SparseImgAlign::computeResiduals(</span><br><span class="line">const SE3&amp; T_cur_from_ref,</span><br><span class="line">bool linearize_system,</span><br><span class="line">bool compute_weight_scale)</span><br><span class="line">&#123;</span><br><span class="line">// 对当前图像进行Warp处理以对应参考图像</span><br><span class="line">const cv::Mat&amp; cur_img = cur_frame_-&gt;img_pyr_.at(level_);</span><br><span class="line"></span><br><span class="line">if (linearize_system &amp;&amp; display_)</span><br><span class="line">resimg_ = cv::Mat(cur_img.size(), CV_32F, cv::Scalar(0));</span><br><span class="line"></span><br><span class="line">if (have_ref_patch_cache_ == false)</span><br><span class="line">precomputeReferencePatches();</span><br><span class="line"></span><br><span class="line">std::vector&lt;float&gt; errors;</span><br><span class="line">if (compute_weight_scale)</span><br><span class="line">errors.reserve(visible_fts_.size());</span><br><span class="line">const int stride = cur_img.cols;</span><br><span class="line">const int border = patch_halfsize_ + 1;</span><br><span class="line">const float scale = 1.0f / (1 &lt;&lt; level_);</span><br><span class="line">const Vector3d ref_pos(ref_frame_-&gt;pos());</span><br><span class="line">float chi2 = 0.0;</span><br><span class="line">size_t feature_counter = 0; // 计算cached jacobian的索引，对应每个特征</span><br><span class="line">std::vector&lt;bool&gt;::iterator visiblity_it = visible_fts_.begin();</span><br><span class="line">for (auto it = ref_frame_-&gt;fts_.begin(); it != ref_frame_-&gt;fts_.end();</span><br><span class="line">++it, ++feature_counter, ++visiblity_it)</span><br><span class="line">&#123;</span><br><span class="line">// 检测特征在图像中是否可见</span><br><span class="line">if (!*visiblity_it)</span><br><span class="line">continue;</span><br><span class="line"></span><br><span class="line">// 计算在当前图像中投影的像素位置</span><br><span class="line">const double depth = ((*it)-&gt;point-&gt;pos_ - ref_pos).norm();</span><br><span class="line">const Vector3d xyz_ref((*it)-&gt;f*depth);//避免了重投影的误差</span><br><span class="line">const Vector3d xyz_cur(T_cur_from_ref * xyz_ref);</span><br><span class="line">const Vector2f uv_cur_pyr(cur_frame_-&gt;cam_-&gt;world2cam(xyz_cur).cast&lt;float&gt;() * scale);// 计算投影到当前帧的像素</span><br><span class="line">const float u_cur = uv_cur_pyr[0];</span><br><span class="line">const float v_cur = uv_cur_pyr[1];</span><br><span class="line">const int u_cur_i = floorf(u_cur);</span><br><span class="line">const int v_cur_i = floorf(v_cur);</span><br><span class="line"></span><br><span class="line">// 检测投影值是否在图像中</span><br><span class="line">if (u_cur_i &lt; 0 || v_cur_i &lt; 0 || u_cur_i - border &lt; 0 || v_cur_i - border &lt; 0 || u_cur_i + border &gt;= cur_img.cols || v_cur_i + border &gt;= cur_img.rows)</span><br><span class="line">continue;</span><br><span class="line"></span><br><span class="line">// 对当前图像进行双边插值加权</span><br><span class="line">const float subpix_u_cur = u_cur - u_cur_i;</span><br><span class="line">const float subpix_v_cur = v_cur - v_cur_i;</span><br><span class="line">const float w_cur_tl = (1.0 - subpix_u_cur) * (1.0 - subpix_v_cur);</span><br><span class="line">const float w_cur_tr = subpix_u_cur * (1.0 - subpix_v_cur);</span><br><span class="line">const float w_cur_bl = (1.0 - subpix_u_cur) * subpix_v_cur;</span><br><span class="line">const float w_cur_br = subpix_u_cur * subpix_v_cur;</span><br><span class="line">float* ref_patch_cache_ptr = reinterpret_cast&lt;float*&gt;(ref_patch_cache_.data) + patch_area_*feature_counter;</span><br><span class="line">size_t pixel_counter = 0; // 用于计算cached jacobian的索引，每个特征对应的像素索引</span><br><span class="line">for (int y = 0; y &lt; patch_size_; ++y)</span><br><span class="line">&#123;</span><br><span class="line">uint8_t* cur_img_ptr = (uint8_t*)cur_img.data + (v_cur_i + y - patch_halfsize_)*stride + (u_cur_i - patch_halfsize_);</span><br><span class="line"></span><br><span class="line">for (int x = 0; x &lt; patch_size_; ++x, ++pixel_counter, ++cur_img_ptr, ++ref_patch_cache_ptr)</span><br><span class="line">&#123;</span><br><span class="line">// 计算残差</span><br><span class="line">const float intensity_cur = w_cur_tl*cur_img_ptr[0] + w_cur_tr*cur_img_ptr[1] + w_cur_bl*cur_img_ptr[stride] + w_cur_br*cur_img_ptr[stride + 1];</span><br><span class="line">const float res = intensity_cur - (*ref_patch_cache_ptr);</span><br><span class="line"></span><br><span class="line">// 用于计算scale用于robust cost</span><br><span class="line">if (compute_weight_scale)</span><br><span class="line">errors.push_back(fabsf(res));</span><br><span class="line"></span><br><span class="line">// 给出权重</span><br><span class="line">float weight = 1.0;</span><br><span class="line">if (use_weights_) &#123;</span><br><span class="line">weight = weight_function_-&gt;value(res / scale_);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">chi2 += res*res*weight;</span><br><span class="line">n_meas_++;</span><br><span class="line"></span><br><span class="line">if (linearize_system)</span><br><span class="line">&#123;</span><br><span class="line">// 计算Jacobian, 带权重的Hessian 和残差图像</span><br><span class="line">const Vector6d J(jacobian_cache_.col(feature_counter*patch_area_ + pixel_counter));</span><br><span class="line">H_.noalias() += J*J.transpose()*weight;</span><br><span class="line">Jres_.noalias() -= J*res*weight;</span><br><span class="line">if (display_)</span><br><span class="line">resimg_.at&lt;float&gt;((int)v_cur + y - patch_halfsize_, (int)u_cur + x - patch_halfsize_) = res / 255.0;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 在第一次迭代时计算权重</span><br><span class="line">if (compute_weight_scale &amp;&amp; iter_ == 0)</span><br><span class="line">scale_ = scale_estimator_-&gt;compute(errors);</span><br><span class="line"></span><br><span class="line">return chi2 / n_meas_;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>求解过程也就是计算H*x ==J，H是Hessian的近似，只取一次项展开的；J是对应的Jacobi矩阵。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">int SparseImgAlign::solve()</span><br><span class="line">&#123;</span><br><span class="line">x_ = H_.ldlt().solve(Jres_);</span><br><span class="line">if ((bool)std::isnan((double)x_[0]))</span><br><span class="line">return 0;</span><br><span class="line">return 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>对于更新：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">void SparseImgAlign::update(</span><br><span class="line">const ModelType&amp; T_curold_from_ref,</span><br><span class="line">ModelType&amp; T_curnew_from_ref)</span><br><span class="line">&#123;</span><br><span class="line">T_curnew_from_ref = T_curold_from_ref * SE3::exp(-x_);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<pre><code>注意求雅克比矩阵的时候，对Rt无法求导数，改成李代数的形式，这边用SE3::exp
+</code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这一部分还有很多地方不是很理解，基本的思路是通过最小光度误差来计算两帧之间的相对偏转量。最小光度误差方程也转换为非线性最小二乘，具体求解即通过高斯牛顿法。&lt;/br&gt;<br>总的来说也就是根据初始化形成的3d点，投影到下一帧，根据下一帧投影点形成匹配关系，通过计算最小光度误差计算两帧相对偏移量，得到姿态之后一并可以对深度进行估计，不过这边的深度估计有点难，通过多个三角化形成的3d点进行分析，通过逆深度进行分析，具体还不是很清楚，可能是逆深度符合高斯分布，不过svo这边是假设了内点符合高斯分布，外点符合均匀分布，后续再理解，先提一提。&lt;/br&gt;<br>后期会对这一部分进一步深入。&lt;/br&gt;<br>最后使用测试程序给出计算结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">int main(int argc, char *argv[])</span><br><span class="line">&#123;</span><br><span class="line">CmdLine cmd;</span><br><span class="line">std::string first_frame_name;</span><br><span class="line">std::string second_frame_name;</span><br><span class="line">std::string third_frame_name;</span><br><span class="line"></span><br><span class="line">cmd.add(make_option(&apos;f&apos;, first_frame_name, &quot;firstname&quot;));</span><br><span class="line">cmd.add(make_option(&apos;s&apos;, second_frame_name, &quot;secondname&quot;));</span><br><span class="line">cmd.add(make_option(&apos;t&apos;, third_frame_name, &quot;thirdname&quot;));</span><br><span class="line">try &#123;</span><br><span class="line">if (argc == 1) throw std::string(&quot;Invalid command line parameter.&quot;);</span><br><span class="line">cmd.process(argc, argv);</span><br><span class="line">&#125;</span><br><span class="line">catch (const std::string&amp; s) &#123;</span><br><span class="line">std::cerr &lt;&lt; &quot;Feature detector \nUsage: &quot; &lt;&lt; argv[0] &lt;&lt; &quot;\n&quot;</span><br><span class="line">&lt;&lt; &quot;[-f|--firstname name]\n&quot;</span><br><span class="line">&lt;&lt; &quot;[-s|--secondname name]\n&quot;</span><br><span class="line">&lt;&lt; &quot;[-t|--thirdname name]\n&quot;</span><br><span class="line">&lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">std::cerr &lt;&lt; s &lt;&lt; std::endl;</span><br><span class="line">return EXIT_FAILURE;</span><br><span class="line">&#125;</span><br><span class="line">cv::Mat first_img(cv::imread(first_frame_name, 0));</span><br><span class="line">cv::Mat second_img(cv::imread(second_frame_name, 0));</span><br><span class="line">cv::Mat third_img(cv::imread(third_frame_name, 0));</span><br><span class="line">assert(first_img.type() == CV_8UC1 &amp;&amp; !first_img.empty());</span><br><span class="line">assert(second_img.type() == CV_8UC1 &amp;&amp; !second_img.empty());</span><br><span class="line">assert(third_img.type() == CV_8UC1 &amp;&amp; !third_img.empty());</span><br><span class="line"></span><br><span class="line">AbstractCamera* cam = new PinholeCamera(752, 480, 315.5, 315.5, 376.0, 240.0);</span><br><span class="line"></span><br><span class="line">FramePtr fisrt_frame(new Frame(cam, first_img, 0.0));</span><br><span class="line">FramePtr second_frame(new Frame(cam, second_img, 1.0));</span><br><span class="line">FramePtr third_frame(new Frame(cam, third_img, 1.0));</span><br><span class="line"></span><br><span class="line">Initialization init;</span><br><span class="line">init.addFirstFrame(fisrt_frame);</span><br><span class="line">init.addSecondFrame(second_frame);</span><br><span class="line"></span><br><span class="line">SparseImgAlign img_align(4, 1,</span><br><span class="line">30, SparseImgAlign::GaussNewton, false, false);</span><br><span class="line">size_t img_align_n_tracked = img_align.run(second_frame, third_frame);</span><br><span class="line">std::cout &lt;&lt; &quot;Img Align:\t Tracked = &quot; &lt;&lt; img_align_n_tracked &lt;&lt; std::endl;</span><br><span class="line">std::cout &lt;&lt; &quot;first pose:&quot; &lt;&lt; fisrt_frame-&gt;T_f_w_ &lt;&lt; &apos;\n&apos;</span><br><span class="line">&lt;&lt; &quot;second pose:&quot; &lt;&lt; second_frame-&gt;T_f_w_ &lt;&lt; &apos;\n&apos;</span><br><span class="line">&lt;&lt; &quot;third pose:&quot;&lt;&lt; third_frame-&gt;T_f_w_ &lt;&lt; std::endl;</span><br><span class="line">getchar();</span><br><span class="line">return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>后期研习：lucas-kanade 20 years on a unifying framework这个系列</p>
+<p>具体结果如下：</p>
+<p><img src="http://7xl6tk.com1.z0.glb.clouddn.com/image_aline.png" alt></p>
+<p>文章转载自冯兵的博客，<a href="http://fengbing.net/2015/08/29/%E4%B8%80%E6%AD%A5%E6%AD%A5%E5%AE%9E%E7%8E%B0%E5%8D%95%E7%9B%AE%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A14%E2%80%94%E2%80%94%E8%BF%90%E5%8A%A8%E4%BC%B0%E8%AE%A1image%20align/" target="_blank" rel="noopener">原文链接</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/09/18/一步步完善视觉里程计4——运动估计image-align/" data-id="cjtbn1uzw000v93xyvku2atwz" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/09/18/一步步完善视觉里程计5——运动估计reproject-feature-align/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          一步步完善视觉里程计5——运动估计reproject,feature align
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/09/18/一步步完善视觉里程计3——初始位置确定/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">一步步完善视觉里程计3——初始位置确定</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/algorithm/">algorithm</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/robot/">robot</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/robot/Java/">Java</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/robot/Java/Android/">Android</a></li></ul></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROS/">ROS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SAE/">SAE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bigdata/">bigdata</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directions/">directions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/donation/">donation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goal/">goal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hello/">hello</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/helloworld/">helloworld</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/robot/">robot</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ROS/" style="font-size: 10px;">ROS</a> <a href="/tags/SAE/" style="font-size: 10px;">SAE</a> <a href="/tags/bigdata/" style="font-size: 10px;">bigdata</a> <a href="/tags/directions/" style="font-size: 10px;">directions</a> <a href="/tags/donation/" style="font-size: 10px;">donation</a> <a href="/tags/goal/" style="font-size: 20px;">goal</a> <a href="/tags/hello/" style="font-size: 10px;">hello</a> <a href="/tags/helloworld/" style="font-size: 10px;">helloworld</a> <a href="/tags/robot/" style="font-size: 10px;">robot</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/03/16/Nature machine intelligence/">Nature machine intelligence</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/16/Science robotics/">Science robotics</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/12/警犬项目经验总结/">警犬项目经验总结</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/12/[转]ROS机器人编程：原理与应用/">『转』ROS机器人编程：原理与应用</a>
+          </li>
+        
+          <li>
+            <a href="/2018/05/07/SVO详解/">SVO详解</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 Hhu_GFBlab<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>『转』ROS机器人编程：原理与应用 | Blackant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="A Systematic Approach to Learning Robot Programming with ROS(原网址：https://zhangrelay.blog.csdn.net/article/details/88359066?from=singlemessage)">
+<meta name="keywords" content="ROS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="『转』ROS机器人编程：原理与应用">
+<meta property="og:url" content="http://yoursite.com/2019/03/12/[转]ROS机器人编程：原理与应用/index.html">
+<meta property="og:site_name" content="Blackant">
+<meta property="og:description" content="A Systematic Approach to Learning Robot Programming with ROS(原网址：https://zhangrelay.blog.csdn.net/article/details/88359066?from=singlemessage)">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/img/CSDN1.png">
+<meta property="og:image" content="http://yoursite.com/img/CSDN2.png">
+<meta property="og:image" content="http://yoursite.com/img/CSDN3.jpg">
+<meta property="og:updated_time" content="2019-03-12T12:38:29.457Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="『转』ROS机器人编程：原理与应用">
+<meta name="twitter:description" content="A Systematic Approach to Learning Robot Programming with ROS(原网址：https://zhangrelay.blog.csdn.net/article/details/88359066?from=singlemessage)">
+<meta name="twitter:image" content="http://yoursite.com/img/CSDN1.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Blackant" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Blackant</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-[转]ROS机器人编程：原理与应用" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/03/12/[转]ROS机器人编程：原理与应用/" class="article-date">
+  <time datetime="2019-03-12T11:34:58.000Z" itemprop="datePublished">2019-03-12</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      『转』ROS机器人编程：原理与应用
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="A-Systematic-Approach-to-Learning-Robot-Programming-with-ROS"><a href="#A-Systematic-Approach-to-Learning-Robot-Programming-with-ROS" class="headerlink" title="A Systematic Approach to Learning Robot Programming with ROS"></a>A Systematic Approach to Learning Robot Programming with ROS</h2><p>(原网址：<a href="https://zhangrelay.blog.csdn.net/article/details/88359066?from=singlemessage" target="_blank" rel="noopener">https://zhangrelay.blog.csdn.net/article/details/88359066?from=singlemessage</a>)<br><a id="more"></a></p>
+<hr>
+<p><img src="/img/CSDN1.png" alt><br><img src="/img/CSDN2.png" alt></p>
+<hr>
+<p>本书对于代码的讲解详细具体，个人大爱，以下是译者序：</p>
+<p><img src="/img/CSDN3.jpg" alt></p>
+<hr>
+<p>本书完全适用于使用indigo或kinetic的学习者或开发者，部分适用Melodic。</p>
+<h2 id="Ubuntu-14-04-和-ROS-Indigo："><a href="#Ubuntu-14-04-和-ROS-Indigo：" class="headerlink" title="Ubuntu 14.04 和 ROS Indigo："></a>Ubuntu 14.04 和 ROS Indigo：</h2><p>   1.学习源码：<a href="https://github.com/wsnewman/learning_ros" target="_blank" rel="noopener">https://github.com/wsnewman/learning_ros</a><br>   2.扩展资源：<a href="https://github.com/wsnewman/learning_ros_external_packages" target="_blank" rel="noopener">https://github.com/wsnewman/learning_ros_external_packages</a></p>
+<h2 id="Ubuntu-16-04-和-ROS-Kinetic："><a href="#Ubuntu-16-04-和-ROS-Kinetic：" class="headerlink" title="Ubuntu 16.04 和 ROS Kinetic："></a>Ubuntu 16.04 和 ROS Kinetic：</h2><p>   1.学习源码：<a href="https://github.com/wsnewman/learning_ros_kinetic" target="_blank" rel="noopener">https://github.com/wsnewman/learning_ros_kinetic</a><br>   2.扩展资源：<a href="https://github.com/wsnewman/learning_ros_external_pkgs_kinetic" target="_blank" rel="noopener">https://github.com/wsnewman/learning_ros_external_pkgs_kinetic</a></p>
+<hr>
+<h2 id="本书设置脚本"><a href="#本书设置脚本" class="headerlink" title="本书设置脚本"></a>本书设置脚本</h2><p>这里的脚本假设您在github上有一个帐户（在github.com上是免费的）。</p>
+<p>您需要在计算机上安装“git”才能使用这些脚本。如果您的计算机上尚未安装“git”，则可以安装：</p>
+<p><code>sudo apt-get --yes --force-yes install git</code></p>
+<hr>
+<h2 id="获取脚本并使其可执行"><a href="#获取脚本并使其可执行" class="headerlink" title="获取脚本并使其可执行"></a>获取脚本并使其可执行</h2><p>要运行这些脚本，请在任何目录中键入以下内容，在计算机上的任何位置克隆learning_ros_setup_scripts：</p>
+<p><code>git clone https://github.com/wsnewman/learning_ros_setup_scripts.git</code></p>
+<p>获得文件后，learning_ros_setup_scripts键入以下命令更改目录： </p>
+<p><code>cd learning_ros_setup_scripts</code></p>
+<p>在此之后，键入以下命令使脚本可执行： </p>
+<p><code>chmod +x *.sh</code></p>
+<h2 id="ROS设置"><a href="#ROS设置" class="headerlink" title="ROS设置"></a>ROS设置</h2><p>要使用“学习ROS”设置所有依赖项和程序的Indigo的ROS安装，请install_ros_and_tools.sh键入以下命令运行脚本:</p>
+<p><code>(./install_ros_and_tools.sh 或bash install_ros_and_tools.sh）</code></p>
+<p>对于ROS Kinetic使用此行:(与Ubuntu 16.04一起使用） </p>
+<p><code>./install_ros_and_tools_kinetic.sh</code></p>
+<h2 id="工作站设置"><a href="#工作站设置" class="headerlink" title="工作站设置"></a>工作站设置</h2><p>要为ROS Indigo设置ROS工作区，请使用该setup_workspace_learning_ros.sh脚本。您需要将您的github用户名和电子邮件作为参数传递给脚本:</p>
+<p>  <code>( ./setup_workspace_learning_ros.sh github_username github@email.com</code></p>
+<p>或</p>
+<p><code>bash setup_workspace_learning_ros.sh github_username github@email.com）</code></p>
+<p>其中github_username是您在github上的用户名，github @ email.com是您与github帐户关联的电子邮件地址。</p>
+<p>对于ROS Kinetic，请使用以下行：</p>
+<p><code>./setup_workspace_learning_ros_kinetic.sh github_username github@email.com</code></p>
+<hr>
+<p>Kinetic</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line"># Learning ROS</span><br><span class="line"># ROS + Dependencies Installation</span><br><span class="line"># v 0.36</span><br><span class="line"> </span><br><span class="line">echo &quot;Beginning ROS Installation&quot;</span><br><span class="line"> </span><br><span class="line">echo -e &quot;\e[1m \e[34m &gt;&gt;&gt; Beginning ROS Kinetic Installation \e[21m \e[39m&quot;</span><br><span class="line">echo -e &quot;\e[34m &gt;&gt;&gt; Setting up sources.list and keys... \e[39m&quot;</span><br><span class="line"> </span><br><span class="line">  sudo sh -c &apos;echo &quot;deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main&quot; &gt; /etc/apt/sources.list.d/ros-latest.list&apos;</span><br><span class="line">  sudo apt-key adv --keyserver hkp://pool.sks-keyservers.net --recv-key 0xB01FA116</span><br><span class="line"> </span><br><span class="line">echo -e &quot;\e[34m &gt;&gt;&gt; ...done\e[39m&quot;</span><br><span class="line"> </span><br><span class="line">  sudo apt-get update</span><br><span class="line"> </span><br><span class="line">echo -e &quot;\e[34m &gt;&gt;&gt; Beginning ros-kinetic-desktop-full installation...\e[39m&quot;</span><br><span class="line"> </span><br><span class="line">  sudo apt-get --yes --allow install ros-kinetic-desktop-full </span><br><span class="line"> </span><br><span class="line">echo -e &quot;\e[34m &gt;&gt;&gt; Setting up rosdep\e[39m&quot;</span><br><span class="line"> </span><br><span class="line">  sudo rosdep init</span><br><span class="line">  rosdep update</span><br><span class="line"> </span><br><span class="line">echo -e &quot;\e[34m &gt;&gt;&gt; Setting up environment \e[39m&quot;</span><br><span class="line"> </span><br><span class="line">  echo &quot;source /opt/ros/kinetic/setup.bash&quot; &gt;&gt; ~/.bashrc</span><br><span class="line">  source ~/.bashrc</span><br><span class="line"> </span><br><span class="line">echo -e &quot;\e[34m &gt;&gt;&gt; Setting up rosinstall \e[39m&quot;</span><br><span class="line"> </span><br><span class="line">  sudo apt-get --yes --force-yes install python-rosinstall</span><br><span class="line"> </span><br><span class="line">echo -e &quot;\e[1m \e[34m &gt;&gt;&gt; Installing dependencies for mobile robotics code \e[21m \e[39m&quot;</span><br><span class="line"> </span><br><span class="line">sudo apt-get --yes --force-yes install ros-kinetic-joy ros-kinetic-costmap-2d ros-kinetic-nav-core ros-kinetic-sound-play ros-kinetic-amcl ros-kinetic-slam-gmapping ros-kinetic-move-base ros-kinetic-controller-interface ros-kinetic-gazebo-ros-control ros-kinetic-joint-state-controller ros-kinetic-effort-controllers ros-kinetic-moveit-msgs ros-kinetic-stdr-simulator ros-kinetic-teleop-twist-keyboard ros-kinetic-slam-gmapping ros-kinetic-map-server ros-kinetic-qt-build ros-kinetic-kdl-parser ros-kinetic-combined-robot-hw ros-kinetic-combined-robot-hw-tests ros-kinetic-controller-manager-tests ros-kinetic-diff-drive-controller ros-kinetic-force-torque-sensor-controller ros-kinetic-gripper-action-controller ros-kinetic-imu-sensor-controller ros-kinetic-position-controllers ros-kinetic-ros-control ros-kinetic-ros-controllers ros-kinetic-rqt-joint-trajectory-controller ros-kinetic-velocity-controllers</span><br><span class="line">sudo apt-get --yes --force-yes install ros-kinetic-cv-bridge ros-kinetic-polled-camera ros-kinetic-camera-info-manager ros-kinetic-tf-conversions</span><br><span class="line">sudo apt-get --yes --force-yes install ros-kinetic-opencv3 libopencv-dev</span><br><span class="line"> </span><br><span class="line">sudo apt-get --yes --force-yes install ros-kinetic-ur-description ros-kinetic-ur-gazebo</span><br><span class="line">  </span><br><span class="line">echo -e &quot;\e[1m \e[34m &gt;&gt;&gt; Installing support software \e[21m \e[39m&quot;</span><br><span class="line"> </span><br><span class="line">  sudo apt-get --yes --force-yes install git</span><br><span class="line">  sudo add-apt-repository -y ppa:webupd8team/sublime-text-3</span><br><span class="line">  sudo apt-get update</span><br><span class="line">  sudo apt-get --yes --force-yes install sublime-text-installer </span><br><span class="line"> </span><br><span class="line">  sudo apt-get --yes --echo -e &quot;\e[34m &gt;&gt;&gt; Setting up rosinstall \e[39m&quot;</span><br><span class="line"> </span><br><span class="line">  sudo apt-get --yes --force-yes install python-rosinstall install netbeans</span><br><span class="line">  sudo apt-get --yes --force-yes install gitk git-gui</span><br><span class="line">  sudo apt-get --yes --force-yes install kazam vlc</span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">echo -e &quot;\e[1m \e[34m &gt;&gt;&gt; Installing rqt \e[21m \e[39m&quot;</span><br><span class="line">  sudo apt-get --yes install ros-kinetic-rqt</span><br><span class="line">  sudo apt-get --yes install ros-kinetic-rqt-common-plugins</span><br><span class="line"> </span><br><span class="line">  source ~/.bashrc</span><br><span class="line"> </span><br><span class="line">source ~/ros_ws/devel/setup.bash</span><br></pre></td></tr></table></figure>
+<hr>
+<p>更多详细资料和教程，稍后补充</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/03/12/[转]ROS机器人编程：原理与应用/" data-id="cjtbn1uz0000d93xy2nu4be08" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ROS/">ROS</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/03/12/警犬项目经验总结/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          警犬项目经验总结
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/05/07/SVO详解/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">SVO详解</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/algorithm/">algorithm</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/robot/">robot</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/robot/Java/">Java</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/robot/Java/Android/">Android</a></li></ul></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROS/">ROS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SAE/">SAE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bigdata/">bigdata</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directions/">directions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/donation/">donation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goal/">goal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hello/">hello</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/helloworld/">helloworld</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/robot/">robot</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ROS/" style="font-size: 10px;">ROS</a> <a href="/tags/SAE/" style="font-size: 10px;">SAE</a> <a href="/tags/bigdata/" style="font-size: 10px;">bigdata</a> <a href="/tags/directions/" style="font-size: 10px;">directions</a> <a href="/tags/donation/" style="font-size: 10px;">donation</a> <a href="/tags/goal/" style="font-size: 20px;">goal</a> <a href="/tags/hello/" style="font-size: 10px;">hello</a> <a href="/tags/helloworld/" style="font-size: 10px;">helloworld</a> <a href="/tags/robot/" style="font-size: 10px;">robot</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/03/16/Nature machine intelligence/">Nature machine intelligence</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/16/Science robotics/">Science robotics</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/12/警犬项目经验总结/">警犬项目经验总结</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/12/[转]ROS机器人编程：原理与应用/">『转』ROS机器人编程：原理与应用</a>
+          </li>
+        
+          <li>
+            <a href="/2018/05/07/SVO详解/">SVO详解</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 Hhu_GFBlab<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>

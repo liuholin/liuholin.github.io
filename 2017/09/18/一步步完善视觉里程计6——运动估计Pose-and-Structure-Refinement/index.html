@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>一步步完善视觉里程计6——运动估计Pose and Structure Refinement | Blackant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前面进行了feature align，也就是不仅考虑了相连的两帧，而且考虑了前面有相同视角的N个关键帧。通过前面的关键帧确定的特征及三维点，投影到当前帧中，来对当前帧中的特征进行优化。但是这一步发现，只是在图像层面进行了优化，而没有考虑级线约束等。&amp;lt;/br&amp;gt;这就通过最小化投影误差来优化运动和结构,具体如下图：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一步步完善视觉里程计6——运动估计Pose and Structure Refinement">
+<meta property="og:url" content="http://yoursite.com/2017/09/18/一步步完善视觉里程计6——运动估计Pose-and-Structure-Refinement/index.html">
+<meta property="og:site_name" content="Blackant">
+<meta property="og:description" content="前面进行了feature align，也就是不仅考虑了相连的两帧，而且考虑了前面有相同视角的N个关键帧。通过前面的关键帧确定的特征及三维点，投影到当前帧中，来对当前帧中的特征进行优化。但是这一步发现，只是在图像层面进行了优化，而没有考虑级线约束等。&amp;lt;/br&amp;gt;这就通过最小化投影误差来优化运动和结构,具体如下图：">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/pose_and_structure.png">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/pose_structure.png">
+<meta property="og:updated_time" content="2019-02-21T08:49:15.529Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一步步完善视觉里程计6——运动估计Pose and Structure Refinement">
+<meta name="twitter:description" content="前面进行了feature align，也就是不仅考虑了相连的两帧，而且考虑了前面有相同视角的N个关键帧。通过前面的关键帧确定的特征及三维点，投影到当前帧中，来对当前帧中的特征进行优化。但是这一步发现，只是在图像层面进行了优化，而没有考虑级线约束等。&amp;lt;/br&amp;gt;这就通过最小化投影误差来优化运动和结构,具体如下图：">
+<meta name="twitter:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/pose_and_structure.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Blackant" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Blackant</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-一步步完善视觉里程计6——运动估计Pose-and-Structure-Refinement" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/09/18/一步步完善视觉里程计6——运动估计Pose-and-Structure-Refinement/" class="article-date">
+  <time datetime="2017-09-18T15:38:20.000Z" itemprop="datePublished">2017-09-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      一步步完善视觉里程计6——运动估计Pose and Structure Refinement
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>前面进行了feature align，也就是不仅考虑了相连的两帧，而且考虑了前面有相同视角的N个关键帧。通过前面的关键帧确定的特征及三维点，投影到当前帧中，来对当前帧中的特征进行优化。但是这一步发现，只是在图像层面进行了优化，而没有考虑级线约束等。&lt;/br&gt;<br>这就通过最小化投影误差来优化运动和结构,具体如下图：</strong><a id="more"></a></p>
+<p><img src="http://7xl6tk.com1.z0.glb.clouddn.com/pose_and_structure.png" alt></p>
+<h2 id="pose-optimize"><a href="#pose-optimize" class="headerlink" title="pose optimize"></a>pose optimize</h2><p>首先考虑单帧，对帧的运动即图Tw,kTw,k进行优化。&lt;/br&gt;<br>根据前面我们大概清楚优化主要通过计算残差，雅克比矩阵以及hessian矩阵。&lt;/br&gt;<br><strong>数学基础有点薄弱，补习中。。。&lt;/br&gt;<br>计算权重，这边计算权重的方式是计算所有误差的绝对中值作为scale，通过Redescending M进行估计，至于为什么这么做就不懂了</strong>&lt;/br&gt;<br>通过重投影计算残差得到残量函数，该函数对TT进行求解雅克比矩阵，具体如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">inline static void jacobian_xyz2uv(</span><br><span class="line">const Vector3d&amp; xyz_in_f,</span><br><span class="line">Matrix&lt;double, 2, 6&gt;&amp; J)</span><br><span class="line">&#123;</span><br><span class="line">const double x = xyz_in_f[0];</span><br><span class="line">const double y = xyz_in_f[1];</span><br><span class="line">const double z_inv = 1. / xyz_in_f[2];</span><br><span class="line">const double z_inv_2 = z_inv*z_inv;</span><br><span class="line"></span><br><span class="line">J(0, 0) = -z_inv;              // -1/z</span><br><span class="line">J(0, 1) = 0.0;                 // 0</span><br><span class="line">J(0, 2) = x*z_inv_2;           // x/z^2</span><br><span class="line">J(0, 3) = y*J(0, 2);            // x*y/z^2</span><br><span class="line">J(0, 4) = -(1.0 + x*J(0, 2));   // -(1.0 + x^2/z^2)</span><br><span class="line">J(0, 5) = y*z_inv;             // y/z</span><br><span class="line"></span><br><span class="line">J(1, 0) = 0.0;                 // 0</span><br><span class="line">J(1, 1) = -z_inv;              // -1/z</span><br><span class="line">J(1, 2) = y*z_inv_2;           // y/z^2</span><br><span class="line">J(1, 3) = 1.0 + y*J(1, 2);      // 1.0 + y^2/z^2</span><br><span class="line">J(1, 4) = -J(0, 3);             // -x*y/z^2</span><br><span class="line">J(1, 5) = -x*z_inv;            // x/z</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意这边计算的是到单位平面，也就是相机焦距fx和fy为1.接着计算雅克比矩阵和Hessian矩阵，然后求解，具体如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">// 计算残差</span><br><span class="line">for (auto it = frame-&gt;fts_.begin(); it != frame-&gt;fts_.end(); ++it)</span><br><span class="line">&#123;</span><br><span class="line">if ((*it)-&gt;point == NULL)</span><br><span class="line">continue;</span><br><span class="line">Matrix26d J;</span><br><span class="line">Vector3d xyz_f(frame-&gt;T_f_w_ * (*it)-&gt;point-&gt;pos_);</span><br><span class="line">Frame::jacobian_xyz2uv(xyz_f, J);</span><br><span class="line">Vector2d e = project2d((*it)-&gt;f) - project2d(xyz_f);</span><br><span class="line">double sqrt_inv_cov = 1.0 / (1 &lt;&lt; (*it)-&gt;level);</span><br><span class="line">e *= sqrt_inv_cov;</span><br><span class="line">if (iter == 0)</span><br><span class="line">chi2_vec_init.push_back(e.squaredNorm()); // 主要用于调试，看结果</span><br><span class="line">J *= sqrt_inv_cov;</span><br><span class="line">double weight = weight_function.value(e.norm() / scale);</span><br><span class="line">A.noalias() += J.transpose()*J*weight;</span><br><span class="line">b.noalias() -= J.transpose()*e*weight;//这边为负号，是因为雅克比矩阵已经添加负号了</span><br><span class="line">new_chi2 += e.squaredNorm()*weight;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//求解线性方程</span><br><span class="line">const Vector6d dT(A.ldlt().solve(b));</span><br></pre></td></tr></table></figure></p>
+<p>求解完成之后就进行更新，不过更新之前先确定误差有没有增加，具体如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// 检测误差是否增加</span><br><span class="line">if ((iter &gt; 0 &amp;&amp; new_chi2 &gt; chi2) || (bool)std::isnan((double)dT[0]))</span><br><span class="line">&#123;</span><br><span class="line">frame-&gt;T_f_w_ = T_old; // 如果误差增加则回滚</span><br><span class="line">break;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 更新模型</span><br><span class="line">SE3 T_new = SE3::exp(dT)*frame-&gt;T_f_w_;</span><br></pre></td></tr></table></figure></p>
+<p><strong>这边模型的更新方式再理解</strong>&lt;/br&gt;<br>最后移除投影误差较大的点以减轻结构优化的负担。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">// 移除残差较大的投影的测量</span><br><span class="line">double reproj_thresh_scaled = reproj_thresh / frame-&gt;cam_-&gt;getFocalLength();</span><br><span class="line">size_t n_deleted_refs = 0;</span><br><span class="line">for (Features::iterator it = frame-&gt;fts_.begin(); it != frame-&gt;fts_.end(); ++it)</span><br><span class="line">&#123;</span><br><span class="line">if ((*it)-&gt;point == NULL)</span><br><span class="line">continue;</span><br><span class="line">Vector2d e = project2d((*it)-&gt;f) - project2d(frame-&gt;T_f_w_ * (*it)-&gt;point-&gt;pos_);</span><br><span class="line">double sqrt_inv_cov = 1.0 / (1 &lt;&lt; (*it)-&gt;level);</span><br><span class="line">e *= sqrt_inv_cov;</span><br><span class="line">chi2_vec_final.push_back(e.squaredNorm());</span><br><span class="line">if (e.norm() &gt; reproj_thresh_scaled)</span><br><span class="line">&#123;</span><br><span class="line">// 我们不需要删除这个指针，因为还没有创建</span><br><span class="line">(*it)-&gt;point = NULL;</span><br><span class="line">++n_deleted_refs;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这边要注意的是一个特征对应的3D点，目前由于还没有考虑depth filter，3D点的初始化时再depth filter中实现。</p>
+<h2 id="structure-optimize"><a href="#structure-optimize" class="headerlink" title="structure optimize"></a>structure optimize</h2><p>上面对运行进行了优化，这对结构进行优化，也就是对3D点进行优化。&lt;/br&gt;<br>这里也就是残量函数对3D点求解雅克比矩阵，具体如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">void Point3D::optimize(const size_t n_iter)</span><br><span class="line">&#123;</span><br><span class="line">Vector3d old_point = pos_;</span><br><span class="line">double chi2 = 0.0;</span><br><span class="line">Matrix3d A;</span><br><span class="line">Vector3d b;</span><br><span class="line"></span><br><span class="line">for (size_t i = 0; i &lt; n_iter; i++)</span><br><span class="line">&#123;</span><br><span class="line">A.setZero();</span><br><span class="line">b.setZero();</span><br><span class="line">double new_chi2 = 0.0;</span><br><span class="line"></span><br><span class="line">// 计算残差</span><br><span class="line">for (auto it = obs_.begin(); it != obs_.end(); ++it)</span><br><span class="line">&#123;</span><br><span class="line">Matrix23d J;</span><br><span class="line">const Vector3d p_in_f((*it)-&gt;frame-&gt;T_f_w_ * pos_);</span><br><span class="line">Point3D::jacobian_xyz2uv(p_in_f, (*it)-&gt;frame-&gt;T_f_w_.rotation_matrix(), J);</span><br><span class="line">const Vector2d e(project2d((*it)-&gt;f) - project2d(p_in_f));</span><br><span class="line">new_chi2 += e.squaredNorm();</span><br><span class="line">A.noalias() += J.transpose() * J;</span><br><span class="line">b.noalias() -= J.transpose() * e;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 求解线性系统</span><br><span class="line">const Vector3d dp(A.ldlt().solve(b));</span><br><span class="line"></span><br><span class="line">// 检测误差有没有增长</span><br><span class="line">if ((i &gt; 0 &amp;&amp; new_chi2 &gt; chi2) || (bool)std::isnan((double)dp[0]))</span><br><span class="line">&#123;</span><br><span class="line">pos_ = old_point; // 回滚</span><br><span class="line">break;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 更新模型</span><br><span class="line">Vector3d new_point = pos_ + dp;</span><br><span class="line">old_point = pos_;</span><br><span class="line">pos_ = new_point;</span><br><span class="line">chi2 = new_chi2;</span><br><span class="line"></span><br><span class="line">// 收敛则停止</span><br><span class="line">if (norm_max(dp) &lt;= EPS)</span><br><span class="line">break;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>下面就对整个运动估计做一个汇总，写出如下测试程序：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">int main(int argc, char *argv[])</span><br><span class="line">&#123;</span><br><span class="line">CmdLine cmd;</span><br><span class="line">std::string first_frame_name;</span><br><span class="line">std::string second_frame_name;</span><br><span class="line">std::string third_frame_name;</span><br><span class="line"></span><br><span class="line">cmd.add(make_option(&apos;f&apos;, first_frame_name, &quot;firstname&quot;));</span><br><span class="line">cmd.add(make_option(&apos;s&apos;, second_frame_name, &quot;secondname&quot;));</span><br><span class="line">cmd.add(make_option(&apos;t&apos;, third_frame_name, &quot;thirdname&quot;));</span><br><span class="line">try &#123;</span><br><span class="line">if (argc == 1) throw std::string(&quot;Invalid command line parameter.&quot;);</span><br><span class="line">cmd.process(argc, argv);</span><br><span class="line">&#125;</span><br><span class="line">catch (const std::string&amp; s) &#123;</span><br><span class="line">std::cerr &lt;&lt; &quot;Feature detector \nUsage: &quot; &lt;&lt; argv[0] &lt;&lt; &quot;\n&quot;</span><br><span class="line">&lt;&lt; &quot;[-f|--firstname name]\n&quot;</span><br><span class="line">&lt;&lt; &quot;[-s|--secondname name]\n&quot;</span><br><span class="line">&lt;&lt; &quot;[-t|--thirdname name]\n&quot;</span><br><span class="line">&lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">std::cerr &lt;&lt; s &lt;&lt; std::endl;</span><br><span class="line">return EXIT_FAILURE;</span><br><span class="line">&#125;</span><br><span class="line">cv::Mat first_img(cv::imread(first_frame_name, 0));</span><br><span class="line">cv::Mat second_img(cv::imread(second_frame_name, 0));</span><br><span class="line">cv::Mat third_img(cv::imread(third_frame_name, 0));</span><br><span class="line">assert(first_img.type() == CV_8UC1 &amp;&amp; !first_img.empty());</span><br><span class="line">assert(second_img.type() == CV_8UC1 &amp;&amp; !second_img.empty());</span><br><span class="line">assert(third_img.type() == CV_8UC1 &amp;&amp; !third_img.empty());</span><br><span class="line"></span><br><span class="line">AbstractCamera* cam = new PinholeCamera(752, 480, 315.5, 315.5, 376.0, 240.0);</span><br><span class="line"></span><br><span class="line">FramePtr fisrt_frame(new Frame(cam, first_img, 0.0));</span><br><span class="line">FramePtr second_frame(new Frame(cam, second_img, 1.0));</span><br><span class="line">FramePtr third_frame(new Frame(cam, third_img, 1.0));</span><br><span class="line"></span><br><span class="line">Initialization init;</span><br><span class="line">init.addFirstFrame(fisrt_frame);</span><br><span class="line">init.addSecondFrame(second_frame);</span><br><span class="line"></span><br><span class="line">third_frame-&gt;T_f_w_ = second_frame-&gt;T_f_w_;//将上一帧的初值赋给这一帧，便于优化</span><br><span class="line"></span><br><span class="line">SparseImgAlign img_align(4, 1,</span><br><span class="line">30, SparseImgAlign::GaussNewton, false, false);</span><br><span class="line">size_t img_align_n_tracked = img_align.run(second_frame, third_frame);</span><br><span class="line">std::cout &lt;&lt; &quot;Img Align:\t Tracked = &quot; &lt;&lt; img_align_n_tracked &lt;&lt; std::endl;</span><br><span class="line">mvo::Map map;</span><br><span class="line">fisrt_frame-&gt;setKeyframe();</span><br><span class="line">second_frame-&gt;setKeyframe();</span><br><span class="line">map.addKeyframe(fisrt_frame);</span><br><span class="line">map.addKeyframe(second_frame);</span><br><span class="line">Reprojector reprojector(cam, map);</span><br><span class="line">std::vector&lt; std::pair&lt;FramePtr, size_t&gt; &gt; overlap_kfs;</span><br><span class="line">reprojector.reprojectMap(third_frame, overlap_kfs);</span><br><span class="line">const size_t repr_n_new_references = reprojector.n_matches_;</span><br><span class="line">const size_t repr_n_mps = reprojector.n_trials_;</span><br><span class="line">std::cout &lt;&lt; &quot;Reprojection:\t Points = &quot; &lt;&lt; repr_n_mps &lt;&lt; &quot;\t \t Matches = &quot; &lt;&lt; repr_n_new_references &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">size_t sfba_n_edges_final;</span><br><span class="line">double sfba_thresh, sfba_error_init, sfba_error_final;</span><br><span class="line">std::cout &lt;&lt; &quot;pose:&quot; &lt;&lt; third_frame-&gt;T_f_w_;</span><br><span class="line">poseOptimize(2.0, 10, false,third_frame, sfba_thresh, sfba_error_init, sfba_error_final, sfba_n_edges_final);</span><br><span class="line">std::cout &lt;&lt; &quot;PoseOptimizer:pose&quot; &lt;&lt; third_frame-&gt;T_f_w_;</span><br><span class="line">std::cout &lt;&lt; &quot;point:&quot; &lt;&lt; third_frame-&gt;fts_.front()-&gt;point-&gt;pos_&lt;&lt;std::endl;</span><br><span class="line">structureOptimize(third_frame, 20, 5);</span><br><span class="line">std::cout &lt;&lt; &quot;structureOptimize:point:&quot; &lt;&lt; third_frame-&gt;fts_.front()-&gt;point-&gt;pos_;</span><br><span class="line">getchar();</span><br><span class="line">return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>具体结果如下：</p>
+<p><img src="http://7xl6tk.com1.z0.glb.clouddn.com/pose_structure.png" alt></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>到目前整个运动估计的部分就差不多结束了，整个过程看起来有点复杂，主要的目的是为了不是直接通过光流跟踪，计算基础矩阵或者单应矩阵分解的方式来估计姿态，主要是考虑了时间成本。目前具体的时间还没有测试，整个参数设置也没有实验，后续补充。</p>
+<p>转载自冯兵的博客，<a href="http://fengbing.net/2015/09/12/%E4%B8%80%E6%AD%A5%E6%AD%A5%E5%AE%9E%E7%8E%B0%E5%8D%95%E7%9B%AE%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A16%E2%80%94%E2%80%94%E8%BF%90%E5%8A%A8%E4%BC%B0%E8%AE%A1pose%20and%20structure%20refinement/" target="_blank" rel="noopener">原文链接</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/09/18/一步步完善视觉里程计6——运动估计Pose-and-Structure-Refinement/" data-id="cjtbn1uzz001193xy61cxxu2y" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/09/18/一步步完善视觉里程计7——mapping/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          一步步完善视觉里程计7——mapping
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/09/18/一步步完善视觉里程计5——运动估计reproject-feature-align/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">一步步完善视觉里程计5——运动估计reproject,feature align</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/algorithm/">algorithm</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/robot/">robot</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/robot/Java/">Java</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/robot/Java/Android/">Android</a></li></ul></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROS/">ROS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SAE/">SAE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bigdata/">bigdata</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directions/">directions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/donation/">donation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goal/">goal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hello/">hello</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/helloworld/">helloworld</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/robot/">robot</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ROS/" style="font-size: 10px;">ROS</a> <a href="/tags/SAE/" style="font-size: 10px;">SAE</a> <a href="/tags/bigdata/" style="font-size: 10px;">bigdata</a> <a href="/tags/directions/" style="font-size: 10px;">directions</a> <a href="/tags/donation/" style="font-size: 10px;">donation</a> <a href="/tags/goal/" style="font-size: 20px;">goal</a> <a href="/tags/hello/" style="font-size: 10px;">hello</a> <a href="/tags/helloworld/" style="font-size: 10px;">helloworld</a> <a href="/tags/robot/" style="font-size: 10px;">robot</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/03/16/Nature machine intelligence/">Nature machine intelligence</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/16/Science robotics/">Science robotics</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/12/警犬项目经验总结/">警犬项目经验总结</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/12/[转]ROS机器人编程：原理与应用/">『转』ROS机器人编程：原理与应用</a>
+          </li>
+        
+          <li>
+            <a href="/2018/05/07/SVO详解/">SVO详解</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 Hhu_GFBlab<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>

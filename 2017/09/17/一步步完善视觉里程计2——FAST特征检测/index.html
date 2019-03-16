@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>一步步完善视觉里程计2——FAST特征检测 | Blackant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前一篇博客中已经将项目简单搭建起来，目前肯定不完善也可能会出现错误，这些在接下来的时间里会一步步的完善。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一步步完善视觉里程计2——FAST特征检测">
+<meta property="og:url" content="http://yoursite.com/2017/09/17/一步步完善视觉里程计2——FAST特征检测/index.html">
+<meta property="og:site_name" content="Blackant">
+<meta property="og:description" content="前一篇博客中已经将项目简单搭建起来，目前肯定不完善也可能会出现错误，这些在接下来的时间里会一步步的完善。">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/main_components.png">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/pipeline.png">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/fast_detector.png">
+<meta property="og:updated_time" content="2019-02-21T08:49:15.529Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一步步完善视觉里程计2——FAST特征检测">
+<meta name="twitter:description" content="前一篇博客中已经将项目简单搭建起来，目前肯定不完善也可能会出现错误，这些在接下来的时间里会一步步的完善。">
+<meta name="twitter:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/main_components.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Blackant" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Blackant</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-一步步完善视觉里程计2——FAST特征检测" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/09/17/一步步完善视觉里程计2——FAST特征检测/" class="article-date">
+  <time datetime="2017-09-17T15:45:17.000Z" itemprop="datePublished">2017-09-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      一步步完善视觉里程计2——FAST特征检测
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>前一篇博客中已经将项目简单搭建起来，目前肯定不完善也可能会出现错误，这些在接下来的时间里会一步步的完善。</strong><a id="more"></a>&lt;/br&gt;<br>前面视觉里程计总结的时候，我们知道视觉里程计的大致流程如下图:</p>
+<p><img src="http://7xl6tk.com1.z0.glb.clouddn.com/main_components.png" alt></p>
+<p>对于<a href="https://github.com/uzh-rpg/rpg_svo" target="_blank" rel="noopener">svo</a>的作者，通过采用计算最小光度误差，来避免计算耗时较多的特征检测和鲁棒性的特征匹配。这一点在我们前面简单的视觉里程计就已经有所介绍。&lt;/br&gt;<br>对于svo的流程具体如下：</p>
+<p><img src="http://7xl6tk.com1.z0.glb.clouddn.com/pipeline.png" alt></p>
+<p>这一篇博客目前先实现Feature Extraction，如果是简单的FAST特征检测，我们在之前的博客中也已经说明，并且也基于OpenCV进行了实现，不过现在我们要从整个系统的角度去考虑这件事，也就是处理帧不仅仅是一幅图片。</p>
+<h2 id="基础成员数据结构"><a href="#基础成员数据结构" class="headerlink" title="基础成员数据结构"></a>基础成员数据结构</h2><h2 id="Frame"><a href="#Frame" class="headerlink" title="Frame"></a>Frame</h2><p>对于帧按照面向对象的思想，其应该包含自己固有的属性，比如帧的编号，帧对应的相机模型，对应的特征等等。具体定义如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">namespace mvo&#123;</span><br><span class="line"></span><br><span class="line">struct Feature;</span><br><span class="line"></span><br><span class="line">typedef std::list&lt;Feature*&gt; Features;//特征list</span><br><span class="line">typedef std::vector&lt;cv::Mat&gt; ImgPyr;//图像金字塔</span><br><span class="line"></span><br><span class="line">/**	定义帧，保证帧的唯一性</span><br><span class="line">*/</span><br><span class="line">class Frame : public Noncopyable</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">/**	帧的实例化，通过传入相机参数，获得的当前帧，及时间戳来确定</span><br><span class="line">*/</span><br><span class="line">Frame(AbstractCamera* cam, const cv::Mat&amp; img, double timestamp);</span><br><span class="line">~Frame();</span><br><span class="line">/// 初始化新的图像帧，创建图像金字塔</span><br><span class="line">void initFrame(const cv::Mat&amp; img);</span><br><span class="line"></span><br><span class="line">private:</span><br><span class="line">/// 通过半采用的方式创建图像金字塔</span><br><span class="line">void createImgPyramid(const cv::Mat&amp; img_level_0, int n_levels, ImgPyr&amp; pyr);</span><br><span class="line"></span><br><span class="line">public:</span><br><span class="line">static int                    frame_counter_;         //!&lt; 创建帧的计数器，用于设置帧的唯一id</span><br><span class="line">int                           id_;                    //!&lt; 帧的唯一id</span><br><span class="line">double                        timestamp_;             //!&lt; 帧被记录的时间戳</span><br><span class="line">AbstractCamera                *cam_;                  //!&lt; 相机模型</span><br><span class="line">ImgPyr                        img_pyr_;               //!&lt; 图像金字塔</span><br><span class="line">Features                      fts_;                   //!&lt; 图像中的特征List</span><br><span class="line">&#125;;</span><br><span class="line">typedef std::shared_ptr&lt;Frame&gt; FramePtr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这边继承类Noncopyable，主要保证帧的唯一性，具体Noncopyable的思想就是把构造函数和析构函数设置为protected权限，这样子类可以调用，其它类不可以调用，然后其把复制构造函数和赋值函数设置为private，这也就意味着除非子类定义自己的copy构造和赋值函数，否则在子类没有定义的情况下，外面的调用者是不能够通过赋值和copy构造等手段来产生一个新的子类对象的，这样确保类的对象的唯一性，具体如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">class  Noncopyable</span><br><span class="line">&#123;</span><br><span class="line">protected:</span><br><span class="line">Noncopyable() &#123;&#125;</span><br><span class="line">~Noncopyable() &#123;&#125;</span><br><span class="line">private:</span><br><span class="line">Noncopyable(const Noncopyable &amp;);  // 这不需要再其它地方实现</span><br><span class="line">Noncopyable&amp; operator =(const Noncopyable &amp;);</span><br><span class="line">&#125;; // End of class def.</span><br></pre></td></tr></table></figure>
+<p>目前定义的帧成员变量主要有，帧的计数器用于设置帧的唯一id，帧创建的时间戳（后期用于同步，多传感器融合），相机模型（用于对图像进行畸变矫正），图像金字塔（主要用于提取不同尺度下的特征，具体尺度的讲解可以参考：<a href="http://www.cs.ubc.ca/~lowe/keypoints/" target="_blank" rel="noopener">sift</a>）以及帧对应的特征。</p>
+<h2 id="Camera"><a href="#Camera" class="headerlink" title="Camera"></a>Camera</h2><p>对于相机模型，定义了相机抽象类，提供了相机分辨率，定义摄像机坐标与图像像素坐标转换的相关抽象方法，具体如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">class  AbstractCamera</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">AbstractCamera() &#123;&#125;; // 此构造函数供全景相机模型使用</span><br><span class="line">AbstractCamera(int width, int height) : width_(width), height_(height) &#123;&#125;;</span><br><span class="line"></span><br><span class="line">virtual ~AbstractCamera() &#123;&#125;;</span><br><span class="line"></span><br><span class="line">/// 图像像素坐标转摄像机坐标系下的点</span><br><span class="line">virtual Vector3d cam2world(const double&amp; x, const double&amp; y) const = 0;</span><br><span class="line"></span><br><span class="line">/// 图像像素坐标转摄像机坐标系下的点</span><br><span class="line">virtual Vector3d cam2world(const Vector2d&amp; px) const = 0;</span><br><span class="line"></span><br><span class="line">/// 摄像机坐标系下的点转图像像素坐标</span><br><span class="line">virtual Vector2d world2cam(const Vector3d&amp; xyz_c) const = 0;</span><br><span class="line"></span><br><span class="line">/// 图像平面像素的世界坐标转像素坐标</span><br><span class="line">virtual Vector2d world2cam(const Vector2d&amp; uv) const = 0;</span><br><span class="line"></span><br><span class="line">/// 返回x方向的焦距值</span><br><span class="line">virtual double getFocalLength() const = 0;</span><br><span class="line"></span><br><span class="line">/// 返回相机分辨率的宽度</span><br><span class="line">inline int width() const &#123; return width_; &#125;</span><br><span class="line">/// 返回相机分辨率的高度</span><br><span class="line">inline int height() const &#123; return height_; &#125;</span><br><span class="line"></span><br><span class="line">protected:</span><br><span class="line">int width_; //!&lt; 相机分辨率的宽度</span><br><span class="line">int height_; //!&lt; 相机分辨率的高度</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>定义了抽象的相机类，目前实现了小孔相机模型，后期进一步考虑实现ATAN相机模型。&lt;/br&gt;<br>小孔相机模型主要考虑了5个畸变参数，具体定义如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">class PinholeCamera : public AbstractCamera &#123;</span><br><span class="line"></span><br><span class="line">public:</span><br><span class="line">// 考虑畸变参数k1,k2,p1,p2,k3</span><br><span class="line">PinholeCamera(double width, double height,</span><br><span class="line">double fx, double fy, double cx, double cy,</span><br><span class="line">double k1 = 0.0, double k2 = 0.0, double p1 = 0.0, double p2 = 0.0, double k3 = 0.0);</span><br><span class="line"></span><br><span class="line">~PinholeCamera();</span><br><span class="line"></span><br><span class="line">/// 图像像素坐标转摄像机坐标系下的点</span><br><span class="line">virtual Vector3d cam2world(const double&amp; x, const double&amp; y) const;</span><br><span class="line"></span><br><span class="line">/// 图像像素坐标转摄像机坐标系下的点</span><br><span class="line">virtual Vector3d cam2world(const Vector2d&amp; px) const;</span><br><span class="line"></span><br><span class="line">/// 摄像机坐标系下的点转图像像素坐标</span><br><span class="line">virtual Vector2d world2cam(const Vector3d&amp; xyz_c) const;</span><br><span class="line"></span><br><span class="line">/// 图像平面像素的世界坐标转像素坐标</span><br><span class="line">virtual Vector2d world2cam(const Vector2d&amp; uv) const;</span><br><span class="line"></span><br><span class="line">/// 返回x方向的焦距值</span><br><span class="line">virtual double getFocalLength() const</span><br><span class="line">&#123;</span><br><span class="line">return fabs(fx_);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/// 获得矫正之后的图像，主要用于显示</span><br><span class="line">void undistortImage(const cv::Mat&amp; raw, cv::Mat&amp; rectified);</span><br><span class="line"></span><br><span class="line">/// 分别得到相机矩阵的4个参数</span><br><span class="line">inline double fx() const &#123; return fx_; &#125;;</span><br><span class="line">inline double fy() const &#123; return fy_; &#125;;</span><br><span class="line">inline double cx() const &#123; return cx_; &#125;;</span><br><span class="line">inline double cy() const &#123; return cy_; &#125;;</span><br><span class="line"></span><br><span class="line">private:</span><br><span class="line">double fx_, fy_;  //!&lt; 相机两个方向的焦距值</span><br><span class="line">double cx_, cy_;  //!&lt; 相机的中心点</span><br><span class="line">bool distortion_; //!&lt; 是单纯的小孔相机模型，还是带有畸变？</span><br><span class="line">double d_[5];     //!&lt; 畸变参数，参考 http://docs.opencv.org/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html</span><br><span class="line">cv::Mat cvK_, cvD_;//!&lt; 通过OpenCV表示的相机的相机矩阵和相机畸变参数</span><br><span class="line">cv::Mat undist_map1_, undist_map2_;//!&lt;相机畸变在两个方向的map，提供给remap函数使用</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>具体实现参考：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line">// 考虑畸变参数k1,k2,p1,p2,k3</span><br><span class="line">PinholeCamera::PinholeCamera(double width, double height,</span><br><span class="line">double fx, double fy,</span><br><span class="line">double cx, double cy,</span><br><span class="line">double k1, double k2, double p1, double p2, double k3) :</span><br><span class="line">AbstractCamera(width, height),</span><br><span class="line">fx_(fx), fy_(fy), cx_(cx), cy_(cy),</span><br><span class="line">distortion_(fabs(k1) &gt; 0.0000001),</span><br><span class="line">undist_map1_(height_, width_, CV_16SC2),</span><br><span class="line">undist_map2_(height_, width_, CV_16SC2)</span><br><span class="line">&#123;</span><br><span class="line">// 径向畸变参数</span><br><span class="line">d_[0] = k1; d_[1] = k2; d_[2] = p1; d_[3] = p2; d_[4] = k3;</span><br><span class="line">cvK_ = (cv::Mat_&lt;float&gt;(3, 3) &lt;&lt; fx_, 0.0, cx_, 0.0, fy_, cy_, 0.0, 0.0, 1.0);</span><br><span class="line">cvD_ = (cv::Mat_&lt;float&gt;(1, 5) &lt;&lt; d_[0], d_[1], d_[2], d_[3], d_[4]);</span><br><span class="line">// 根据相机矩阵和畸变参数构建map</span><br><span class="line">cv::initUndistortRectifyMap(cvK_, cvD_, cv::Mat_&lt;double&gt;::eye(3, 3), cvK_,</span><br><span class="line">cv::Size(width_, height_), CV_16SC2, undist_map1_, undist_map2_);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">PinholeCamera::~PinholeCamera()&#123;&#125;</span><br><span class="line"></span><br><span class="line">Vector3d PinholeCamera::cam2world(const double&amp; u, const double&amp; v) const</span><br><span class="line">&#123;</span><br><span class="line">Vector3d xyz;</span><br><span class="line">if (!distortion_)</span><br><span class="line">&#123;</span><br><span class="line">xyz[0] = (u - cx_) / fx_;</span><br><span class="line">xyz[1] = (v - cy_) / fy_;</span><br><span class="line">xyz[2] = 1.0;</span><br><span class="line">&#125;</span><br><span class="line">else</span><br><span class="line">&#123;</span><br><span class="line">cv::Point2f uv(u, v), px;</span><br><span class="line">const cv::Mat src_pt(1, 1, CV_32FC2, &amp;uv.x);</span><br><span class="line">cv::Mat dst_pt(1, 1, CV_32FC2, &amp;px.x);</span><br><span class="line">cv::undistortPoints(src_pt, dst_pt, cvK_, cvD_);</span><br><span class="line">xyz[0] = px.x;</span><br><span class="line">xyz[1] = px.y;</span><br><span class="line">xyz[2] = 1.0;</span><br><span class="line">&#125;</span><br><span class="line">return xyz.normalized();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Vector3d PinholeCamera::cam2world(const Vector2d&amp; uv) const</span><br><span class="line">&#123;</span><br><span class="line">return cam2world(uv[0], uv[1]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/// 摄像机坐标系下的点转图像像素坐标</span><br><span class="line">Vector2d PinholeCamera::world2cam(const Vector3d&amp; xyz) const</span><br><span class="line">&#123;</span><br><span class="line">Vector2d  uv = xyz.head&lt;2&gt;() / xyz[2];</span><br><span class="line">return world2cam(uv);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/// 图像平面像素的世界坐标转像素坐标</span><br><span class="line">Vector2d PinholeCamera::world2cam(const Vector2d&amp; uv) const</span><br><span class="line">&#123;</span><br><span class="line">Vector2d px;</span><br><span class="line">if (!distortion_)</span><br><span class="line">&#123;</span><br><span class="line">px[0] = fx_*uv[0] + cx_;</span><br><span class="line">px[1] = fy_*uv[1] + cy_;</span><br><span class="line">&#125;</span><br><span class="line">else</span><br><span class="line">&#123;</span><br><span class="line">double x, y, r2, r4, r6, a1, a2, a3, cdist, xd, yd;</span><br><span class="line">x = uv[0];</span><br><span class="line">y = uv[1];</span><br><span class="line">r2 = x*x + y*y;</span><br><span class="line">r4 = r2*r2;</span><br><span class="line">r6 = r4*r2;</span><br><span class="line">a1 = 2 * x*y;</span><br><span class="line">a2 = r2 + 2 * x*x;</span><br><span class="line">a3 = r2 + 2 * y*y;</span><br><span class="line">cdist = 1 + d_[0] * r2 + d_[1] * r4 + d_[4] * r6;//1+k1r2+k2r4+k3r6</span><br><span class="line">xd = x*cdist + d_[2] * a1 + d_[3] * a2;</span><br><span class="line">yd = y*cdist + d_[2] * a3 + d_[3] * a1;</span><br><span class="line">px[0] = xd*fx_ + cx_;</span><br><span class="line">px[1] = yd*fy_ + cy_;</span><br><span class="line">&#125;</span><br><span class="line">return px;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void PinholeCamera::undistortImage(const cv::Mat&amp; raw, cv::Mat&amp; rectified)</span><br><span class="line">&#123;</span><br><span class="line">if (distortion_)</span><br><span class="line">cv::remap(raw, rectified, undist_map1_, undist_map2_, CV_INTER_LINEAR);</span><br><span class="line">else</span><br><span class="line">rectified = raw.clone();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于小孔相机模型就不多说了，主要公式可以参考：&lt;/br&gt;<br><a href="http://docs.opencv.org/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html" target="_blank" rel="noopener">http://docs.opencv.org/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html</a></p>
+<h2 id="image-and-feature"><a href="#image-and-feature" class="headerlink" title="image and feature"></a>image and feature</h2><p>那这样我们基础的相机模型已经设计与实现完毕，那下面我们就考虑帧对应的图像金字塔，对于图像金字塔，直接采用了OpenCV的数据结构 <strong>cv::Mat</strong>，定义为 <strong>typedef std::vector<cv::mat> ImgPyr</cv::mat></strong>;而对于特征feature我们定义如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">struct Feature</span><br><span class="line">&#123;</span><br><span class="line">**EIGEN_MAKE_ALIGNED_OPERATOR_NEW**</span><br><span class="line"></span><br><span class="line">///特征类型,目前先只考虑角点，后续考虑其它特征的时候，再进行添加</span><br><span class="line">enum FeatureType &#123;</span><br><span class="line">CORNER//角点</span><br><span class="line">&#125;;</span><br><span class="line">FeatureType type;     //!&lt; 特征类型，角点</span><br><span class="line">Frame* frame;         //!&lt; 指针指向特征被检测到所对应的帧</span><br><span class="line">Vector2d px;          //!&lt; 特征在金字塔等级为0时的像素坐标</span><br><span class="line">int level;            //!&lt; 特征被提取时，图像金字塔的等级</span><br><span class="line"></span><br><span class="line">Feature(Frame* _frame, const Vector2d&amp; _px, int _level) :</span><br><span class="line">type(CORNER),</span><br><span class="line">frame(_frame),</span><br><span class="line">px(_px),</span><br><span class="line">level(_level)</span><br><span class="line">&#123;&#125;</span><br><span class="line"></span><br><span class="line">~Feature()&#123;&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>由于包含了Eigen库中的成员变量，通过采用EIGEN_MAKE_ALIGNED_OPERATOR_NEW，会对结构体进行重载new操作，生成16字节对齐指针，具体可以参考<a href="http://eigen.tuxfamily.org/dox/group__TopicStructHavingEigenMembers.html" target="_blank" rel="noopener">http://eigen.tuxfamily.org/dox/group__TopicStructHavingEigenMembers.html</a>&lt;/br&gt;<br>对于特征类型，目前先考虑为角点，后期考虑添加其它特征时再进行添加，具体还包含了指针指向特征被检测所对应的帧，特征在金字塔等级为0时的像素坐标，以及考虑特征所在的金字塔等级。</p>
+<h2 id="帧的初始化"><a href="#帧的初始化" class="headerlink" title="帧的初始化"></a>帧的初始化</h2><p>而具体帧初始化时，也就是对帧对应的图像进行构造图像金字塔。具体如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">void Frame::initFrame(const cv::Mat&amp; img)</span><br><span class="line">&#123;</span><br><span class="line">// 检测图像，保证图像大小与相机模型大小一致，以及图像为灰度图像</span><br><span class="line">if (img.empty() || img.type() != CV_8UC1 || img.cols != cam_-&gt;width() || img.rows != cam_-&gt;height())</span><br><span class="line">throw std::runtime_error(&quot;Frame: provided image has not the same size as the camera model or image is not grayscale&quot;);</span><br><span class="line"></span><br><span class="line">// 构建图像金字塔，默认金字塔的等级为5</span><br><span class="line">createImgPyramid(img, 5, img_pyr_);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>更详细实现参考<a href="https://github.com/yueying/OpenMVO" target="_blank" rel="noopener">github</a></p>
+<h2 id="特征检测"><a href="#特征检测" class="headerlink" title="特征检测"></a>特征检测</h2><p>上面基本的类型已经定义好了，下面进行特征提取，对于特征提取，为了特征跟踪的时候，不容易出现突变，通过将图像进行划分为单元格，使得检测到的特征尽可能的分散，尽量保证每个单元格有一个特征。&lt;/br&gt;<br>对特征检测也进行抽象，为了后期可以方便的切换到其它特征检测算法，具体定义如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">/// 特征检测的抽象类</span><br><span class="line">class AbstractDetector</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">AbstractDetector(</span><br><span class="line">const int img_width,</span><br><span class="line">const int img_height,</span><br><span class="line">const int cell_size,</span><br><span class="line">const int n_pyr_levels);</span><br><span class="line"></span><br><span class="line">virtual ~AbstractDetector() &#123;&#125;;</span><br><span class="line"></span><br><span class="line">virtual void detect(</span><br><span class="line">Frame* frame,</span><br><span class="line">const ImgPyr&amp; img_pyr,</span><br><span class="line">const double detection_threshold,</span><br><span class="line">Features&amp; fts) = 0;</span><br><span class="line"></span><br><span class="line">protected:</span><br><span class="line">/// 将所有格子重新设置，设置为没有占用</span><br><span class="line">void resetGrid();</span><br><span class="line"></span><br><span class="line">protected:</span><br><span class="line"></span><br><span class="line">const int cell_size_;             //!&lt; 设置寻找角点单元格的大小</span><br><span class="line">const int n_pyr_levels_;          //!&lt; 图像金字塔的等级</span><br><span class="line">const int grid_n_cols_;           //!&lt; 将图像划分为格子后的列数</span><br><span class="line">const int grid_n_rows_;           //!&lt; 将图像划分为格子后的行数</span><br><span class="line">std::vector&lt;bool&gt; grid_occupancy_;//!&lt; 设定划分的所有格子数是否被占用</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>定义抽象特征提取的时候，考虑了特征的分散，将图像分成 <strong>grid<em>n_cols</em></strong> * <strong>grid<em>n_rows</em></strong>个格子，每个格子尽量对应一个特征。<br>具体抽象类的实现如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">AbstractDetector::AbstractDetector(</span><br><span class="line">const int img_width,</span><br><span class="line">const int img_height,</span><br><span class="line">const int cell_size,</span><br><span class="line">const int n_pyr_levels) :</span><br><span class="line">cell_size_(cell_size),</span><br><span class="line">n_pyr_levels_(n_pyr_levels),</span><br><span class="line">grid_n_cols_(ceil(static_cast&lt;double&gt;(img_width) / cell_size_)),</span><br><span class="line">grid_n_rows_(ceil(static_cast&lt;double&gt;(img_height) / cell_size_)),</span><br><span class="line">grid_occupancy_(grid_n_cols_*grid_n_rows_, false)</span><br><span class="line">&#123;&#125;</span><br><span class="line"></span><br><span class="line">void AbstractDetector::resetGrid()</span><br><span class="line">&#123;</span><br><span class="line">std::fill(grid_occupancy_.begin(), grid_occupancy_.end(), false);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>定义好特征检测的抽象类，下面我们主要使用的特征检测算法为FAST特征检测，我们定义FAST特征检测类，实现抽象类中的抽象方法。&lt;/br&gt;<br>具体定义如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">class FastDetector : public AbstractDetector</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">FastDetector(</span><br><span class="line">const int img_width,</span><br><span class="line">const int img_height,</span><br><span class="line">const int cell_size,</span><br><span class="line">const int n_pyr_levels);</span><br><span class="line"></span><br><span class="line">virtual ~FastDetector() &#123;&#125;</span><br><span class="line"></span><br><span class="line">virtual void detect(</span><br><span class="line">Frame* frame,</span><br><span class="line">const ImgPyr&amp; img_pyr,</span><br><span class="line">const double detection_threshold,</span><br><span class="line">Features&amp; fts);</span><br><span class="line"></span><br><span class="line">private:</span><br><span class="line">float shiTomasiScore(const cv::Mat&amp; img, int u, int v);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>我们看到，定义了<strong>shiTomasiScore</strong>方法，我们对通过FAST检测出的角点进行了进一步的筛选，添加Shi-Tomasi角点提取的方法，确保提取出的角点的稳定性。&lt;/br&gt;<br>而具体的FAST特征检测，我们采用了第三方库<a href="https://github.com/uzh-rpg/fast" target="_blank" rel="noopener">fast</a>，主要作者通过SSE2指令进行了实现，效率高。&lt;/br&gt;<br>具体实现如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">void FastDetector::detect(</span><br><span class="line">Frame* frame,</span><br><span class="line">const ImgPyr&amp; img_pyr,</span><br><span class="line">const double detection_threshold,</span><br><span class="line">Features&amp; fts)</span><br><span class="line">&#123;</span><br><span class="line">Corners corners(grid_n_cols_*grid_n_rows_, Corner(0, 0, detection_threshold, 0, 0.0f));</span><br><span class="line">// 对每层金字塔都进行fast特征检测</span><br><span class="line">for (int L = 0; L &lt; n_pyr_levels_; ++L)</span><br><span class="line">&#123;</span><br><span class="line">const int scale = (1 &lt;&lt; L);</span><br><span class="line">std::vector&lt;fast::fast_xy&gt; fast_corners;</span><br><span class="line">#if __SSE2__</span><br><span class="line">fast::fast_corner_detect_10_sse2(</span><br><span class="line">(fast::fast_byte*) img_pyr[L].data, img_pyr[L].cols,</span><br><span class="line">img_pyr[L].rows, img_pyr[L].cols, 20, fast_corners);</span><br><span class="line">#else</span><br><span class="line">fast::fast_corner_detect_10(</span><br><span class="line">(fast::fast_byte*) img_pyr[L].data, img_pyr[L].cols,</span><br><span class="line">img_pyr[L].rows, img_pyr[L].cols, 20, fast_corners);</span><br><span class="line">#endif</span><br><span class="line">std::vector&lt;int&gt; scores, nm_corners;</span><br><span class="line">fast::fast_corner_score_10((fast::fast_byte*) img_pyr[L].data, img_pyr[L].cols, fast_corners, 20, scores);</span><br><span class="line">fast::fast_nonmax_3x3(fast_corners, scores, nm_corners);</span><br><span class="line"></span><br><span class="line">for (auto it = nm_corners.begin(), ite = nm_corners.end(); it != ite; ++it)</span><br><span class="line">&#123;</span><br><span class="line">fast::fast_xy&amp; xy = fast_corners.at(*it);</span><br><span class="line">const int k = static_cast&lt;int&gt;((xy.y*scale) / cell_size_)*grid_n_cols_</span><br><span class="line">+ static_cast&lt;int&gt;((xy.x*scale) / cell_size_);// 获得一维列的索引</span><br><span class="line">if (grid_occupancy_[k])// 如果这个格子里面已经有特征，则该特征可以不必再进行计算了</span><br><span class="line">continue;</span><br><span class="line">const float score = shiTomasiScore(img_pyr[L], xy.x, xy.y);//计算shi-Tomasi角点检测，根据阈值选择更好的角点</span><br><span class="line">if (score &gt; corners.at(k).score)</span><br><span class="line">corners.at(k) = Corner(xy.x*scale, xy.y*scale, score, L, 0.0f);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 返回所有的特征</span><br><span class="line">std::for_each(corners.begin(), corners.end(), [&amp;](Corner&amp; c) &#123;</span><br><span class="line">if (c.score &gt; detection_threshold)</span><br><span class="line">fts.push_back(new Feature(frame, Vector2d(c.x, c.y), c.level));</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">resetGrid();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>我们对金字塔的每层图像都进行fast特征检测，对检测出的角点再通过shi-Tomasi算法进一步进行角点确定，具体实现如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">float FastDetector::shiTomasiScore(const cv::Mat&amp; img, int u, int v)</span><br><span class="line">&#123;</span><br><span class="line">assert(img.type() == CV_8UC1);</span><br><span class="line"></span><br><span class="line">float dXX = 0.0;</span><br><span class="line">float dYY = 0.0;</span><br><span class="line">float dXY = 0.0;</span><br><span class="line">const int halfbox_size = 4;</span><br><span class="line">const int box_size = 2 * halfbox_size;</span><br><span class="line">const int box_area = box_size*box_size;</span><br><span class="line">const int x_min = u - halfbox_size;</span><br><span class="line">const int x_max = u + halfbox_size;</span><br><span class="line">const int y_min = v - halfbox_size;</span><br><span class="line">const int y_max = v + halfbox_size;</span><br><span class="line"></span><br><span class="line">if (x_min &lt; 1 || x_max &gt;= img.cols - 1 || y_min &lt; 1 || y_max &gt;= img.rows - 1)</span><br><span class="line">return 0.0; // 面片太靠近边界，返回0</span><br><span class="line"></span><br><span class="line">const int stride = img.step.p[0];//一行元素的个数</span><br><span class="line">for (int y = y_min; y &lt; y_max; ++y)</span><br><span class="line">&#123;</span><br><span class="line">const uint8_t* ptr_left = img.data + stride*y + x_min - 1;</span><br><span class="line">const uint8_t* ptr_right = img.data + stride*y + x_min + 1;</span><br><span class="line">const uint8_t* ptr_top = img.data + stride*(y - 1) + x_min;</span><br><span class="line">const uint8_t* ptr_bottom = img.data + stride*(y + 1) + x_min;</span><br><span class="line">for (int x = 0; x &lt; box_size; ++x, ++ptr_left, ++ptr_right, ++ptr_top, ++ptr_bottom)</span><br><span class="line">&#123;</span><br><span class="line">float dx = *ptr_right - *ptr_left;</span><br><span class="line">float dy = *ptr_bottom - *ptr_top;</span><br><span class="line">dXX += dx*dx;</span><br><span class="line">dYY += dy*dy;</span><br><span class="line">dXY += dx*dy;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 返回小的特征值</span><br><span class="line">dXX = dXX / (2.0 * box_area);</span><br><span class="line">dYY = dYY / (2.0 * box_area);</span><br><span class="line">dXY = dXY / (2.0 * box_area);</span><br><span class="line">return 0.5 * (dXX + dYY - sqrt((dXX + dYY) * (dXX + dYY) - 4 * (dXX * dYY - dXY * dXY)));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于return的结果不是很明白，如果有人看博客，了解的话，还请不吝赐教。</p>
+<h2 id="特征检测测试"><a href="#特征检测测试" class="headerlink" title="特征检测测试"></a>特征检测测试</h2><p>上述过程，整个特征检测lib就已经差不多完善了，下面我们就写一个测试程序。&lt;/br&gt;<br>具体如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;string&gt;</span><br><span class="line">#include &lt;opencv2/opencv.hpp&gt;</span><br><span class="line">#include &lt;openmvo/utils/cmd_line.h&gt;</span><br><span class="line">#include &lt;openmvo/utils/timer.h&gt;</span><br><span class="line">#include &lt;openmvo/mvo/pinhole_camera.h&gt;</span><br><span class="line">#include &lt;openmvo/mvo/fast_detector.h&gt;</span><br><span class="line">#include &lt;openmvo/mvo/frame.h&gt;</span><br><span class="line"></span><br><span class="line">using namespace mvo;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">int main(int argc, char *argv[])</span><br><span class="line">&#123;</span><br><span class="line">CmdLine cmd;</span><br><span class="line">std::string img_name;</span><br><span class="line">cmd.add(make_option(&apos;i&apos;, img_name, &quot;imgname&quot;));</span><br><span class="line">try &#123;</span><br><span class="line">if (argc == 1) throw std::string(&quot;Invalid command line parameter.&quot;);</span><br><span class="line">cmd.process(argc, argv);</span><br><span class="line">&#125;</span><br><span class="line">catch (const std::string&amp; s) &#123;</span><br><span class="line">std::cerr &lt;&lt; &quot;Feature detector \nUsage: &quot; &lt;&lt; argv[0] &lt;&lt; &quot;\n&quot;</span><br><span class="line">&lt;&lt; &quot;[-i|--imgname name]\n&quot;</span><br><span class="line">&lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">std::cerr &lt;&lt; s &lt;&lt; std::endl;</span><br><span class="line">return EXIT_FAILURE;</span><br><span class="line">&#125;</span><br><span class="line">cv::Mat img(cv::imread(img_name, 0));</span><br><span class="line">assert(img.type() == CV_8UC1 &amp;&amp; !img.empty());</span><br><span class="line"></span><br><span class="line">AbstractCamera* cam = new PinholeCamera(752, 480, 315.5, 315.5, 376.0, 240.0);</span><br><span class="line">FramePtr frame(new Frame(cam, img, 0.0));</span><br><span class="line">Features fts;</span><br><span class="line">FastDetector fast_detector(img.cols, img.rows, 25, 3);</span><br><span class="line">Timer t;</span><br><span class="line">for (int i = 0; i &lt; 100; ++i)</span><br><span class="line">&#123;</span><br><span class="line">fast_detector.detect(frame.get(), frame-&gt;img_pyr_, 20.0, fts);</span><br><span class="line">&#125;</span><br><span class="line">printf(&quot;Fast corner detection took %f ms, %d corners detected (ref i7-W520: 7.166360ms, 40000)\n&quot;, t.Stop() * 10, fts.size());</span><br><span class="line">printf(&quot;Note, in this case, feature detection also contains the cam2world projection of the feature.\n&quot;);</span><br><span class="line">cv::Mat img_rgb = cv::Mat(img.size(), CV_8UC3);</span><br><span class="line">cv::cvtColor(img, img_rgb, CV_GRAY2RGB);</span><br><span class="line">std::for_each(fts.begin(), fts.end(), [&amp;](Feature* i)&#123;</span><br><span class="line">cv::circle(img_rgb, cv::Point2f(i-&gt;px[0], i-&gt;px[1]), 4 * (i-&gt;level + 1), cv::Scalar(0, 255, 0), 1);</span><br><span class="line">&#125;);</span><br><span class="line">cv::imshow(&quot;ref_img&quot;, img_rgb);</span><br><span class="line">cv::waitKey(0);</span><br><span class="line"></span><br><span class="line">std::for_each(fts.begin(), fts.end(), [&amp;](Feature* i)&#123; delete i; &#125;);</span><br><span class="line">return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这边添加了CmdLine处理，通过对相关可调参数通过给main函数传参获得。具体效果如下：</p>
+<p><img src="http://7xl6tk.com1.z0.glb.clouddn.com/fast_detector.png" alt></p>
+<p>圈的大小代表了尺度的大小，也就是在不同金字塔下检测的特征。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>到目前为止，一个fast特征检测差不多基本结束，完整的代码可参考<a href="https://github.com/yueying/OpenMVO" target="_blank" rel="noopener">https://github.com/yueying/OpenMVO</a>  &lt;/br&gt;<br>主要讲述了整个流程，而具体FAST特征检测的过程所述不多，第三方库FAST采用了SSE2指令，后续对这一块进一步学习。</p>
+<p>转载自冯兵的博客，<a href="http://fengbing.net/2015/08/08/%E4%B8%80%E6%AD%A5%E6%AD%A5%E5%AE%9E%E7%8E%B0%E5%8D%95%E7%9B%AE%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A12%E2%80%94%E2%80%94FAST%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" target="_blank" rel="noopener">原文链接</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/09/17/一步步完善视觉里程计2——FAST特征检测/" data-id="cjtbn1uzs000q93xyuk2vgm2x" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/09/18/一步步完善视觉里程计3——初始位置确定/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          一步步完善视觉里程计3——初始位置确定
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/09/16/一步步完善视觉里程计1——项目框架搭建/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">一步步完善视觉里程计1——项目框架搭建</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/algorithm/">algorithm</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/robot/">robot</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/robot/Java/">Java</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/robot/Java/Android/">Android</a></li></ul></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROS/">ROS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SAE/">SAE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bigdata/">bigdata</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directions/">directions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/donation/">donation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goal/">goal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hello/">hello</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/helloworld/">helloworld</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/robot/">robot</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ROS/" style="font-size: 10px;">ROS</a> <a href="/tags/SAE/" style="font-size: 10px;">SAE</a> <a href="/tags/bigdata/" style="font-size: 10px;">bigdata</a> <a href="/tags/directions/" style="font-size: 10px;">directions</a> <a href="/tags/donation/" style="font-size: 10px;">donation</a> <a href="/tags/goal/" style="font-size: 20px;">goal</a> <a href="/tags/hello/" style="font-size: 10px;">hello</a> <a href="/tags/helloworld/" style="font-size: 10px;">helloworld</a> <a href="/tags/robot/" style="font-size: 10px;">robot</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/03/16/Nature machine intelligence/">Nature machine intelligence</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/16/Science robotics/">Science robotics</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/12/警犬项目经验总结/">警犬项目经验总结</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/12/[转]ROS机器人编程：原理与应用/">『转』ROS机器人编程：原理与应用</a>
+          </li>
+        
+          <li>
+            <a href="/2018/05/07/SVO详解/">SVO详解</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 Hhu_GFBlab<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>

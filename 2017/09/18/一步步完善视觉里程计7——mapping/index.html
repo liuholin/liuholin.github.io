@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>一步步完善视觉里程计7——mapping | Blackant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前面运动估计部分就已经完成了，虽然步骤很多但是总的目的是为了局部姿态估计的准确性。接下来我们要做的操作就是mapping，给mapping单独开出一个线程，主要的目的是根据给出的图像和其姿态Ik , Tk,w,用于估计那些不知道对应3D点的二维特征的深度信息。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一步步完善视觉里程计7——mapping">
+<meta property="og:url" content="http://yoursite.com/2017/09/18/一步步完善视觉里程计7——mapping/index.html">
+<meta property="og:site_name" content="Blackant">
+<meta property="og:description" content="前面运动估计部分就已经完成了，虽然步骤很多但是总的目的是为了局部姿态估计的准确性。接下来我们要做的操作就是mapping，给mapping单独开出一个线程，主要的目的是根据给出的图像和其姿态Ik , Tk,w,用于估计那些不知道对应3D点的二维特征的深度信息。">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/compute_tau.png">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/tau_process1.png">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/tau_process2.png">
+<meta property="og:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/depth_filter_result.png">
+<meta property="og:updated_time" content="2019-02-21T08:49:15.529Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一步步完善视觉里程计7——mapping">
+<meta name="twitter:description" content="前面运动估计部分就已经完成了，虽然步骤很多但是总的目的是为了局部姿态估计的准确性。接下来我们要做的操作就是mapping，给mapping单独开出一个线程，主要的目的是根据给出的图像和其姿态Ik , Tk,w,用于估计那些不知道对应3D点的二维特征的深度信息。">
+<meta name="twitter:image" content="http://7xl6tk.com1.z0.glb.clouddn.com/compute_tau.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Blackant" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Blackant</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-一步步完善视觉里程计7——mapping" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/09/18/一步步完善视觉里程计7——mapping/" class="article-date">
+  <time datetime="2017-09-18T15:44:38.000Z" itemprop="datePublished">2017-09-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      一步步完善视觉里程计7——mapping
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>前面运动估计部分就已经完成了，虽然步骤很多但是总的目的是为了局部姿态估计的准确性。接下来我们要做的操作就是mapping，给mapping单独开出一个线程，主要的目的是根据给出的图像和其姿态I<sub>k</sub> , T<sub>k,w</sub>,用于估计那些不知道对应3D点的二维特征的深度信息。<a id="more"></a></p>
+<h2 id="seed"><a href="#seed" class="headerlink" title="seed"></a>seed</h2><p>首先构建种子点结构用于存储没有获得深度信息的特征，对其进行深度估计，具体设计如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">struct Seed</span><br><span class="line">&#123;</span><br><span class="line">EIGEN_MAKE_ALIGNED_OPERATOR_NEW</span><br><span class="line"></span><br><span class="line">static int batch_counter;    //!&lt; 用于设置种子点对应帧的数目</span><br><span class="line">static int seed_counter;     //!&lt; 用于设置种子点的唯一id</span><br><span class="line">int batch_id;                //!&lt; batch_id是种子点被创建所对应的关键帧的id</span><br><span class="line">int id;                      //!&lt; 种子ID,仅用来可视化显示</span><br><span class="line">Feature* ftr;                //!&lt; 在关键帧上的特征，这些特征的深度需要被计算</span><br><span class="line">float a;                     //!&lt; Beta分布的参数a: a越高，则内点的概率就越大</span><br><span class="line">float b;                     //!&lt; Beta分布的参数b: b越高，则外点的概率就越大</span><br><span class="line">float mu;                    //!&lt; 正态分布的均值</span><br><span class="line">float z_range;               //!&lt; 可能深度的最大范围</span><br><span class="line">float sigma2;                //!&lt; 正态分布的方差</span><br><span class="line">Seed(Feature* ftr, float depth_mean, float depth_min);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>种子点的结构定义了，接下来就是初始化种子点，对于种子点只是在添加关键帧的时候才会初始化，具体初始化如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">void DepthFilter::initializeSeeds(FramePtr frame)</span><br><span class="line">&#123;</span><br><span class="line">Features new_features;</span><br><span class="line">// 将帧划分为格子，确定通过光流跟踪确定的特征是否在格子内，在，标识格子被占用</span><br><span class="line">// 以减小下一步特征检测的计算量</span><br><span class="line">feature_detector_-&gt;setExistingFeatures(frame-&gt;fts_);</span><br><span class="line">feature_detector_-&gt;detect(frame.get(), frame-&gt;img_pyr_,</span><br><span class="line">Config::triangMinCornerScore(), new_features);</span><br><span class="line"></span><br><span class="line">//对每个特征初始化一个新种子点</span><br><span class="line">seeds_updating_halt_ = true;</span><br><span class="line">lock_t lock(seeds_mut_); // 确保独立执行，updateSeeds函数暂停</span><br><span class="line">++Seed::batch_counter;</span><br><span class="line">std::for_each(new_features.begin(), new_features.end(), [&amp;](Feature* ftr)&#123;</span><br><span class="line">seeds_.push_back(Seed(ftr, new_keyframe_mean_depth_, new_keyframe_min_depth_));</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">seeds_updating_halt_ = false;// 表明种子已经添加完成</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>对种子点进行更新，更新的过程有不少地方还没有看懂。先把代码贴过来，对其中部分做一个讲述。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line">void DepthFilter::updateSeeds(FramePtr frame)</span><br><span class="line">&#123;</span><br><span class="line">// 更新有限数目的种子点，因为我们没有时间对每帧中的所有种子点进行处理</span><br><span class="line">size_t n_updates = 0, n_failed_matches = 0, n_seeds = seeds_.size();</span><br><span class="line">lock_t lock(seeds_mut_);</span><br><span class="line">std::list&lt;Seed&gt;::iterator it = seeds_.begin();</span><br><span class="line"></span><br><span class="line">const double focal_length = frame-&gt;cam_-&gt;getFocalLength();// 得到焦距</span><br><span class="line">double px_noise = 1.0;//设置像素误差为1个像素</span><br><span class="line">double px_error_angle = atan(px_noise / (2.0*focal_length))*2.0; // 计算误差带来的角度变化误差</span><br><span class="line"></span><br><span class="line">while (it != seeds_.end())</span><br><span class="line">&#123;</span><br><span class="line">// 表明种子点在添加</span><br><span class="line">if (seeds_updating_halt_)</span><br><span class="line">return;</span><br><span class="line"></span><br><span class="line">// 确保当前种子点对应的帧数不太大，以保证种子点较新</span><br><span class="line">if ((Seed::batch_counter - it-&gt;batch_id) &gt; options_.max_n_kfs) &#123;</span><br><span class="line">it = seeds_.erase(it);</span><br><span class="line">continue;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 检测点是否在当前图像中可见</span><br><span class="line">SE3 T_ref_cur = it-&gt;ftr-&gt;frame-&gt;T_f_w_ * frame-&gt;T_f_w_.inverse();// 参考帧向当前帧的变换（姿态变换右乘）</span><br><span class="line">const Vector3d xyz_f(T_ref_cur.inverse()*(1.0 / it-&gt;mu * it-&gt;ftr-&gt;f));//1.0 / it-&gt;mu 也就是深度的均值</span><br><span class="line">if (xyz_f.z() &lt; 0.0)  &#123;</span><br><span class="line">++it; // 在相机后面</span><br><span class="line">continue;</span><br><span class="line">&#125;</span><br><span class="line">if (!frame-&gt;cam_-&gt;isInFrame(frame-&gt;f2c(xyz_f).cast&lt;int&gt;())) &#123;</span><br><span class="line">++it; // 点没有投影到相机中</span><br><span class="line">continue;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 使用逆的深度坐标，这边为什么用逆呢</span><br><span class="line">float z_inv_min = it-&gt;mu + sqrt(it-&gt;sigma2);</span><br><span class="line">float z_inv_max = std::max(it-&gt;mu - sqrt(it-&gt;sigma2), 0.00000001f);</span><br><span class="line">double z;</span><br><span class="line">if (!matcher_.findEpipolarMatchDirect(</span><br><span class="line">*it-&gt;ftr-&gt;frame, *frame, *it-&gt;ftr, 1.0 / it-&gt;mu, 1.0 / z_inv_min, 1.0 / z_inv_max, z))</span><br><span class="line">&#123;</span><br><span class="line">it-&gt;b++; // 如果没有发现匹配，则增加外点的概率</span><br><span class="line">++it;</span><br><span class="line">++n_failed_matches;</span><br><span class="line">continue;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 计算测量的不确定性</span><br><span class="line">double tau = computeTau(T_ref_cur, it-&gt;ftr-&gt;f, z, px_error_angle);</span><br><span class="line">double tau_inverse = 0.5 * (1.0 / std::max(0.0000001, z - tau) - 1.0 / (z + tau));</span><br><span class="line"></span><br><span class="line">// 更新种子点</span><br><span class="line">updateSeed(1. / z, tau_inverse*tau_inverse, &amp;*it);</span><br><span class="line">++n_updates;</span><br><span class="line"></span><br><span class="line">if (frame-&gt;isKeyframe())</span><br><span class="line">&#123;</span><br><span class="line">feature_detector_-&gt;setGridOccupancy(matcher_.px_cur_);</span><br><span class="line">&#125;</span><br><span class="line">///？？？</span><br><span class="line">if (sqrt(it-&gt;sigma2) &lt; it-&gt;z_range / options_.seed_convergence_sigma2_thresh)</span><br><span class="line">&#123;</span><br><span class="line">assert(it-&gt;ftr-&gt;point == NULL); // TODO this should not happen anymore</span><br><span class="line">Vector3d xyz_world(it-&gt;ftr-&gt;frame-&gt;T_f_w_.inverse() * (it-&gt;ftr-&gt;f * (1.0 / it-&gt;mu)));</span><br><span class="line">Point3D* point = new Point3D(xyz_world);</span><br><span class="line">point-&gt;obs_.push_front(it-&gt;ftr);</span><br><span class="line">it-&gt;ftr-&gt;point = point;			</span><br><span class="line">seed_converged_cb_(point, it-&gt;sigma2); // 添加到候选list			</span><br><span class="line">it = seeds_.erase(it);</span><br><span class="line">&#125;</span><br><span class="line">else if (isnan(z_inv_min))</span><br><span class="line">&#123;</span><br><span class="line">it = seeds_.erase(it);</span><br><span class="line">&#125;</span><br><span class="line">else</span><br><span class="line">++it;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>目前对于计算不确定性，可以参考如下图：</p>
+<p><img src="http://7xl6tk.com1.z0.glb.clouddn.com/compute_tau.png" alt></p>
+<p>更详细的过程如下，可参考：</p>
+<p><img src="http://7xl6tk.com1.z0.glb.clouddn.com/tau_process1.png" alt><br><img src="http://7xl6tk.com1.z0.glb.clouddn.com/tau_process2.png" alt></p>
+<p>代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">/// 计算测量的不确定性</span><br><span class="line">double DepthFilter::computeTau(</span><br><span class="line">const SE3&amp; T_ref_cur,</span><br><span class="line">const Vector3d&amp; f,</span><br><span class="line">const double z,</span><br><span class="line">const double px_error_angle)</span><br><span class="line">&#123;</span><br><span class="line">Vector3d t(T_ref_cur.translation());</span><br><span class="line">Vector3d a = f*z - t;</span><br><span class="line">double t_norm = t.norm();</span><br><span class="line">double a_norm = a.norm();</span><br><span class="line">double alpha = acos(f.dot(t) / t_norm); // 点乘计算角度</span><br><span class="line">double beta = acos(a.dot(-t) / (t_norm*a_norm)); // 点乘计算角度</span><br><span class="line">double beta_plus = beta + px_error_angle;</span><br><span class="line">double gamma_plus = M_PI - alpha - beta_plus; // 三角之和180</span><br><span class="line">double z_plus = t_norm*sin(beta_plus) / sin(gamma_plus); // 正玄定理</span><br><span class="line">return (z_plus - z); // tau</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>对于其它地方后续继续研究，根据作者给出测试程序，参考如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line">void DepthFilterTest::testReconstruction(</span><br><span class="line">std::string dataset_dir,</span><br><span class="line">std::string experiment_name)</span><br><span class="line">&#123;</span><br><span class="line">//读取图像名和姿态</span><br><span class="line">std::string file_name = dataset_dir + &quot;/trajectory.txt&quot;;</span><br><span class="line">mvo::FileReader&lt;mvo::blender_utils::file_format::ImageNameAndPose&gt; sequence_file_reader(file_name);</span><br><span class="line">std::vector&lt;mvo::blender_utils::file_format::ImageNameAndPose&gt; sequence;</span><br><span class="line">sequence.reserve(10000);</span><br><span class="line">sequence_file_reader.skipComments();</span><br><span class="line">if (!sequence_file_reader.next())</span><br><span class="line">std::runtime_error(&quot;Failed to open sequence file&quot;);</span><br><span class="line">sequence_file_reader.readAllEntries(sequence);</span><br><span class="line">std::cout &lt;&lt; &quot;RUN EXPERIMENT: read &quot; &lt;&lt; sequence.size() &lt;&lt; &quot; dataset entries.&quot; &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">// 构建depth filter</span><br><span class="line">DetectorPtr feature_detector(new mvo::FastDetector(</span><br><span class="line">cam_-&gt;width(), cam_-&gt;height(), mvo::Config::gridSize(), mvo::Config::nPyrLevels()));</span><br><span class="line">DepthFilter::callback_t depth_filter_cb = std::bind(&amp;DepthFilterTest::depthFilterCB, this, std::placeholders::_1, std::placeholders::_2);</span><br><span class="line">depth_filter_ = new mvo::DepthFilter(feature_detector, depth_filter_cb);</span><br><span class="line">depth_filter_-&gt;options_.verbose = true;</span><br><span class="line"></span><br><span class="line">std::vector&lt;mvo::blender_utils::file_format::ImageNameAndPose&gt;::iterator it = sequence.begin();</span><br><span class="line"></span><br><span class="line">std::list&lt;size_t&gt; n_converged_per_iteration;</span><br><span class="line">// 遍历获取图像</span><br><span class="line">for (int i = 0; it != sequence.end() &amp;&amp; i &lt; 20; ++it, ++i)</span><br><span class="line">&#123;</span><br><span class="line">std::string img_name(dataset_dir + &quot;/img/&quot; + (*it).image_name_ + &quot;_0.png&quot;);</span><br><span class="line">printf(&quot;reading image: &apos;%s&apos;\n&quot;, img_name.c_str());</span><br><span class="line">cv::Mat img(cv::imread(img_name, 0));</span><br><span class="line">assert(!img.empty());</span><br><span class="line"></span><br><span class="line">Sophus::SE3 T_w_f(it-&gt;q_, it-&gt;t_);</span><br><span class="line">if (i == 0)</span><br><span class="line">&#123;</span><br><span class="line">// 创建参考帧导入真实地图信息</span><br><span class="line">frame_ref_ = std::shared_ptr&lt;mvo::Frame&gt;(new mvo::Frame(cam_, img, 0.0));</span><br><span class="line">frame_ref_-&gt;T_f_w_ = T_w_f.inverse();//姿态变Rt</span><br><span class="line">depth_filter_-&gt;addKeyframe(frame_ref_, 2, 0.5);</span><br><span class="line">mvo::blender_utils::loadBlenderDepthmap(dataset_dir + &quot;/depth/&quot; + (*it).image_name_ + &quot;_0.depth&quot;, *cam_, depth_ref_);</span><br><span class="line">continue;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">n_converged_seeds_ = 0;</span><br><span class="line">frame_cur_ = std::shared_ptr&lt;mvo::Frame&gt;(new mvo::Frame(cam_, img, 0.0));</span><br><span class="line">frame_cur_-&gt;T_f_w_ = T_w_f.inverse();</span><br><span class="line">depth_filter_-&gt;addFrame(frame_cur_);</span><br><span class="line">n_converged_per_iteration.push_back(n_converged_seeds_);</span><br><span class="line">&#125;</span><br><span class="line">//printf(&quot;Experiment &apos;%s&apos; took %f ms\n&quot;, experiment_name.c_str(), t.stop() * 1000);</span><br><span class="line"></span><br><span class="line">// compute mean, median and variance of error in converged area</span><br><span class="line">&#123;</span><br><span class="line">printf(&quot;# converged:  \t %zu (ref: 287)\n&quot;, errors_.size());</span><br><span class="line">double sum_error = 0;</span><br><span class="line">std::for_each(errors_.begin(), errors_.end(), [&amp;](double&amp; e)&#123;sum_error += e; &#125;);</span><br><span class="line">printf(&quot;mean error:   \t %f cm (ref: 0.080357)\n&quot;, sum_error * 100 / errors_.size());</span><br><span class="line">std::vector&lt;double&gt;::iterator it = errors_.begin() + 0.5*errors_.size();</span><br><span class="line">std::nth_element(errors_.begin(), it, errors_.end());</span><br><span class="line">printf(&quot;50-percentile: \t %f cm (ref: 0.062042)\n&quot;, *it * 100);</span><br><span class="line">it = errors_.begin() + 0.8*errors_.size();</span><br><span class="line">std::nth_element(errors_.begin(), it, errors_.end());</span><br><span class="line">printf(&quot;80-percentile: \t %f cm (ref: 0.124526)\n&quot;, *it * 100);</span><br><span class="line">it = errors_.begin() + 0.95*errors_.size();</span><br><span class="line">std::nth_element(errors_.begin(), it, errors_.end());</span><br><span class="line">printf(&quot;95-percentile: \t %f cm (ref: 0.200417)\n&quot;, *it * 100);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// trace error</span><br><span class="line">std::string trace_name(&quot;./depth_filter_&quot; + experiment_name + &quot;.txt&quot;);</span><br><span class="line">std::ofstream ofs(trace_name.c_str());</span><br><span class="line">for (std::list&lt;ConvergedSeed&gt;::iterator i = results_.begin(); i != results_.end(); ++i)</span><br><span class="line">ofs &lt;&lt; i-&gt;x_ &lt;&lt; &quot;, &quot; &lt;&lt; i-&gt;y_ &lt;&lt; &quot;, &quot; &lt;&lt; fabs(i-&gt;error_) &lt;&lt; std::endl;</span><br><span class="line">ofs.close();</span><br><span class="line"></span><br><span class="line">// trace convergence rate</span><br><span class="line">trace_name = &quot;./depth_filter_&quot; + experiment_name + &quot;_convergence.txt&quot;;</span><br><span class="line">ofs.open(trace_name.c_str());</span><br><span class="line">for (std::list&lt;size_t&gt;::iterator it = n_converged_per_iteration.begin();</span><br><span class="line">it != n_converged_per_iteration.end(); ++it)</span><br><span class="line">ofs &lt;&lt; *it &lt;&lt; std::endl;</span><br><span class="line">ofs.close();</span><br><span class="line"></span><br><span class="line">// write ply file for pointcloud visualization in Meshlab</span><br><span class="line">trace_name = &quot;./depth_filter_&quot; + experiment_name + &quot;.ply&quot;;</span><br><span class="line">ofs.open(trace_name.c_str());</span><br><span class="line">ofs &lt;&lt; &quot;ply&quot; &lt;&lt; std::endl</span><br><span class="line">&lt;&lt; &quot;format ascii 1.0&quot; &lt;&lt; std::endl</span><br><span class="line">&lt;&lt; &quot;element vertex &quot; &lt;&lt; results_.size() &lt;&lt; std::endl</span><br><span class="line">&lt;&lt; &quot;property float x&quot; &lt;&lt; std::endl</span><br><span class="line">&lt;&lt; &quot;property float y&quot; &lt;&lt; std::endl</span><br><span class="line">&lt;&lt; &quot;property float z&quot; &lt;&lt; std::endl</span><br><span class="line">&lt;&lt; &quot;property uchar blue&quot; &lt;&lt; std::endl</span><br><span class="line">&lt;&lt; &quot;property uchar green&quot; &lt;&lt; std::endl</span><br><span class="line">&lt;&lt; &quot;property uchar red&quot; &lt;&lt; std::endl</span><br><span class="line">&lt;&lt; &quot;end_header&quot; &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">for (std::list&lt;ConvergedSeed&gt;::iterator i = results_.begin(); i != results_.end(); ++i)</span><br><span class="line">&#123;</span><br><span class="line">//cv::Vec3b c = frame_ref_-&gt;img_pyr_[0].at&lt;cv::Vec3b&gt;(i-&gt;y_, i-&gt;x_);</span><br><span class="line">Eigen::Vector3d p = cam_-&gt;cam2world(i-&gt;x_, i-&gt;y_)*i-&gt;depth_;</span><br><span class="line">ofs &lt;&lt; p[0] &lt;&lt; &quot; &quot; &lt;&lt; p[1] &lt;&lt; &quot; &quot; &lt;&lt; p[2] &lt;&lt; &quot; &quot;</span><br><span class="line">//&lt;&lt; (int)c[0] &lt;&lt; &quot; &quot; &lt;&lt; (int)c[1] &lt;&lt; &quot; &quot; &lt;&lt; (int)c[2] &lt;&lt; std::endl;</span><br><span class="line">&lt;&lt; &quot;255 255 255&quot; &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>最终可得相关结果</p>
+<p><img src="http://7xl6tk.com1.z0.glb.clouddn.com/depth_filter_result.png" alt></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>整个程序到这里，让人看起来是越来越复杂了，目前只能写部分能看懂的，部分剩下的没有明白的后续继续研究。</p>
+<p>转载自冯兵的博客，<a href="http://fengbing.net/2015/09/26/%E4%B8%80%E6%AD%A5%E6%AD%A5%E5%AE%9E%E7%8E%B0%E5%8D%95%E7%9B%AE%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A17%E2%80%94%E2%80%94mapping/" target="_blank" rel="noopener">原文链接</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/09/18/一步步完善视觉里程计7——mapping/" data-id="cjtbn1v00001393xy2xadxp7t" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/09/19/DSO详解/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          DSO详解
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/09/18/一步步完善视觉里程计6——运动估计Pose-and-Structure-Refinement/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">一步步完善视觉里程计6——运动估计Pose and Structure Refinement</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/algorithm/">algorithm</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/robot/">robot</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/robot/Java/">Java</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/robot/Java/Android/">Android</a></li></ul></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROS/">ROS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SAE/">SAE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bigdata/">bigdata</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/directions/">directions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/donation/">donation</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goal/">goal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hello/">hello</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/helloworld/">helloworld</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/robot/">robot</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ROS/" style="font-size: 10px;">ROS</a> <a href="/tags/SAE/" style="font-size: 10px;">SAE</a> <a href="/tags/bigdata/" style="font-size: 10px;">bigdata</a> <a href="/tags/directions/" style="font-size: 10px;">directions</a> <a href="/tags/donation/" style="font-size: 10px;">donation</a> <a href="/tags/goal/" style="font-size: 20px;">goal</a> <a href="/tags/hello/" style="font-size: 10px;">hello</a> <a href="/tags/helloworld/" style="font-size: 10px;">helloworld</a> <a href="/tags/robot/" style="font-size: 10px;">robot</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/03/16/Nature machine intelligence/">Nature machine intelligence</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/16/Science robotics/">Science robotics</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/12/警犬项目经验总结/">警犬项目经验总结</a>
+          </li>
+        
+          <li>
+            <a href="/2019/03/12/[转]ROS机器人编程：原理与应用/">『转』ROS机器人编程：原理与应用</a>
+          </li>
+        
+          <li>
+            <a href="/2018/05/07/SVO详解/">SVO详解</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 Hhu_GFBlab<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>
